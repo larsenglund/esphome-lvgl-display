@@ -1,0 +1,70 @@
+font:
+  - file: "gfonts://Kdam Thmor Pro"
+    id: montserrat_outlined_24
+    size: 26
+    glyphs: "0123456789OFN"
+    bpp: 8
+  
+  - file: "gfonts://Kdam Thmor Pro"
+    id: kdam_12
+    size: 14
+    glyphs: "%"
+    bpp: 8
+  
+  - file: "https://github.com/Templarian/MaterialDesign-Webfont/raw/master/fonts/materialdesignicons-webfont.ttf"
+    id: material_icons_24
+    size: 38
+    glyphs: $mdi_lightbulb # "\U000F0335"  # lightbulb icon
+    bpp: 8
+  
+  - file: "gfonts://Kdam Thmor Pro"
+    id: montserrat_14
+    size: 16
+    bpp: 8
+
+  # - file: "esphome-modular-lvgl-buttons/assets/fonts/Nunito-SemiBold.ttf"
+  #   id: nunito_72
+  #   size: 72
+  #   bpp: 8
+    
+  # - file: "esphome-modular-lvgl-buttons/assets/fonts/Nunito-SemiBold.ttf"
+  #   id: nunito_48
+  #   size: 48
+  #   bpp: 8 
+
+  # - file: "esphome-modular-lvgl-buttons/assets/fonts/Nunito-SemiBold.ttf"
+  #   id: nunito_42
+  #   size: 42
+  #   bpp: 8
+    
+  # - file: "esphome-modular-lvgl-buttons/assets/fonts/Nunito-SemiBold.ttf"
+  #   id: nunito_36
+  #   size: 36
+  #   bpp: 8  
+
+  # - file: "esphome-modular-lvgl-buttons/assets/fonts/Nunito-SemiBold.ttf"
+  #   id: nunito_24
+  #   size: 24
+  #   bpp: 8
+    
+  # - file: "esphome-modular-lvgl-buttons/assets/fonts/Nunito-SemiBold.ttf"
+  #   id: nunito_20
+  #   size: 20
+  #   bpp: 8  
+
+  # - file: "esphome-modular-lvgl-buttons/assets/fonts/Nunito-SemiBold.ttf"
+  #   id: nunito_18
+  #   size: 18
+  #   bpp: 8
+    
+  # - file: "esphome-modular-lvgl-buttons/assets/fonts/Nunito-SemiBold.ttf"
+  #   id: nunito_14
+  #   size: 14
+  #   bpp: 8  
+
+  # - file: "esphome-modular-lvgl-buttons/assets/fonts/Nunito-SemiBold.ttf"
+  #   id: nunito_12
+  #   size: 12
+  #   bpp: 8
+     
+

@@ -1,0 +1,336 @@
+substitutions:
+  device_name: living-room-display
+
+esphome:
+  name: ${device_name}
+  friendly_name: "Living room display"
+
+packages:
+  network: !include include/network.yaml # WiFi, API and OTA configuration
+  hardware: !include include/guition-esp32-s3-4848s040.yaml # Harware description file
+  fonts: !include include/fonts.yaml # Some nice basic fonts
+  glyphs: !include include/mdi_glyph_substitutions.yaml # 1000s of glyphs
+  sensors: !include include/sensors_base.yaml # Some basic sensors
+
+logger:
+
+globals:
+  - id: square_slider_prev_value
+    type: int
+    restore_value: no
+    initial_value: '25'
+  - id: square_slider_dragged
+    type: bool
+    restore_value: no
+    initial_value: 'false'
+  - id: square_slider_touch_active
+    type: bool
+    restore_value: no
+    initial_value: 'false'
+  - id: square_toggle_state
+    type: bool
+    restore_value: no
+    initial_value: 'false'
+
+image:
+  - file: radial_bg.png
+    id: page_background
+    resize: 480x480
+    type: RGB565
+
+lvgl:
+  displays:
+    - tft_display
+  touchscreens:
+    - tft_touch
+  color_depth: 16
+  
+  theme:
+    slider:
+      bg_color: 0x33294D
+      bg_opa: 100%
+      outline_width: 2
+      outline_color: 0x6750A4
+      radius: 8
+      pad_all: 0
+      shadow_width: 15
+      shadow_color: 0x33294D
+      shadow_ofs_y: 8
+      shadow_opa: 40%
+      indicator:
+        bg_color: 0x6750A4
+        pad_all: 0
+        radius: 0
+      knob:
+        bg_opa: 0
+        border_width: 0
+        pad_all: 0
+
+  style_definitions:
+    - id: square_toggle_style
+      bg_color: 0x33294D
+      bg_opa: 100%
+      outline_width: 2
+      outline_color: 0x6750A4
+      border_width: 0
+      radius: 8
+      pad_all: 0
+      text_color: 0x6750A4
+
+    - id: momentary_button_style
+      bg_color: 0x2196A7
+      bg_opa: 100%
+      outline_width: 2
+      outline_color: 0x1C6D79
+      radius: 8
+      pad_all: 0
+      shadow_width: 15
+      shadow_color: 0x33294D
+      shadow_ofs_y: 8
+      shadow_opa: 40%
+      text_color: 0xFFFFFF
+
+  top_layer:
+    widgets:
+      - label:
+          text: "\uF1EB"
+          id: lbl_hastatus
+          hidden: true
+          align: top_right
+          x: 0
+          y: 0
+          text_align: right
+          text_color: 0xff4800
+  pages:
+    - id: main_page
+      bg_image_src: page_background
+      widgets:
+        - slider:
+            id: square_slider_1
+            width: 100
+            height: 100
+            min_value: 0
+            max_value: 100
+            value: 25
+            x: 10
+            y: 10
+            on_all_events:
+              then:
+                - lambda: |-
+                    const auto code = lv_event_get_code(event);
+                    if (code == LV_EVENT_PRESSED) {
+                      id(square_slider_prev_value) = lv_slider_get_value(id(square_slider_1));
+                      id(square_slider_touch_active) = true;
+                      id(square_slider_dragged) = false;
+                      return;
+                    }
+                    if (code == LV_EVENT_PRESSING) {
+                      auto indev = lv_event_get_indev(event);
+                      if (indev != nullptr) {
+                        lv_point_t vector{};
+                        lv_indev_get_vect(indev, &vector);
+                        if (vector.x != 0 || vector.y != 0) {
+                          id(square_slider_dragged) = true;
+                        }
+                      }
+                      return;
+                    }
+                    if (code == LV_EVENT_VALUE_CHANGED) {
+                      const auto slider_value = lv_slider_get_value(id(square_slider_1));
+                      if (id(square_slider_touch_active) && !id(square_slider_dragged)) {
+                        if (slider_value != id(square_slider_prev_value)) {
+                          lv_slider_set_value(id(square_slider_1), id(square_slider_prev_value), LV_ANIM_OFF);
+                        }
+                        return;
+                      }
+                      id(square_slider_prev_value) = slider_value;
+                      return;
+                    }
+                    if (code == LV_EVENT_RELEASED || code == LV_EVENT_PRESS_LOST) {
+                      id(square_slider_touch_active) = false;
+                      id(square_slider_dragged) = false;
+                      return;
+                    }
+                    if (code == LV_EVENT_SHORT_CLICKED) {
+                      ESP_LOGI("slider", "square_slider_1 tapped, resetting to 0%%");
+                      id(square_slider_touch_active) = false;
+                      id(square_slider_dragged) = false;
+                      id(square_slider_prev_value) = 0;
+                      lv_slider_set_value(id(square_slider_1), 0, LV_ANIM_OFF);
+                      lv_event_send(id(square_slider_1), LV_EVENT_VALUE_CHANGED, nullptr);
+                      return;
+                    }
+                    if (code == LV_EVENT_LONG_PRESSED) {
+                      ESP_LOGI("slider", "square_slider_1 long pressed");
+                    }
+            on_value:
+              - lambda: |-
+                  const auto value_str = ((int)x == 0 ? std::string("OFF") : to_string((int)x));
+                  lv_label_set_text(percent_label_1, value_str.c_str());
+                  const auto color = ((int)x > 0) ? lv_color_hex(0xFFFFFF)
+                                                   : lv_color_hex(0x6750A4);
+                  lv_obj_set_style_text_color(id(percent_label_1), color, LV_PART_MAIN);
+                  lv_obj_set_style_text_color(id(icon_label_1), color, LV_PART_MAIN);
+            widgets:
+              - label:
+                  id: percent_label_1
+                  text: "25"
+                  text_color: 0xFFFFFF
+                  text_font: montserrat_outlined_24
+                  align: TOP_RIGHT
+                  x: -8
+                  y: 4
+              - label:
+                  id: icon_label_1
+                  text: "\U000F0335"
+                  text_color: 0xFFFFFF
+                  text_font: material_icons_24
+                  align: TOP_LEFT
+                  x: 0
+                  y: 4
+              - label:
+                  id: text_label_1
+                  text: "PROGRESS\nBAR"
+                  text_color: 0xFFFFFF
+                  text_font: montserrat_14
+                  align: BOTTOM_LEFT
+                  x: 8
+                  y: -8
+        - obj:
+            id: square_toggle_card
+            width: 100
+            height: 100
+            x: 130
+            y: 10
+            clickable: true
+            styles:
+              - square_toggle_style
+            on_all_events:
+              then:
+                - lambda: |-
+                    const auto code = lv_event_get_code(event);
+                    auto update_toggle_card = [&]() {
+                      const bool is_on = id(square_toggle_state);
+                      const auto bg_color = is_on ? lv_color_hex(0x6750A4)
+                                                  : lv_color_hex(0x33294D);
+                      const auto icon_color = is_on ? lv_color_hex(0xFFFFFF)
+                                                    : lv_color_hex(0x6750A4);
+                      lv_obj_set_style_bg_color(id(square_toggle_card), bg_color, LV_PART_MAIN);
+                      lv_obj_set_style_text_color(id(icon_label_2), icon_color, LV_PART_MAIN);
+                    };
+                    if (code == LV_EVENT_READY) {
+                      update_toggle_card();
+                      return;
+                    }
+                    if (code == LV_EVENT_SHORT_CLICKED) {
+                      id(square_toggle_state) = !id(square_toggle_state);
+                      update_toggle_card();
+                      return;
+                    }
+                    if (code == LV_EVENT_RELEASED) {
+                      update_toggle_card();
+                    }
+            widgets:
+              - label:
+                  id: icon_label_2
+                  text: "\U000F0335"
+                  text_color: 0x6750A4
+                  text_font: material_icons_24
+                  align: TOP_LEFT
+                  x: 0
+                  y: 4
+              - label:
+                  id: text_label_2
+                  text: "TOGGLE"
+                  text_color: 0xFFFFFF
+                  text_font: montserrat_14
+                  align: BOTTOM_LEFT
+                  x: 8
+                  y: -8
+        - button:
+            id: momentary_button
+            width: 100
+            height: 100
+            x: 250
+            y: 10
+            styles:
+              - momentary_button_style
+            on_all_events:
+              then:
+                - lambda: |-
+                    const auto code = lv_event_get_code(event);
+                    if (code == LV_EVENT_PRESSED) {
+                      lv_obj_set_style_bg_color(id(momentary_button), lv_color_hex(0x26BBD3), LV_PART_MAIN);
+                      lv_obj_set_style_border_color(id(momentary_button), lv_color_hex(0x3CB9CC), LV_PART_MAIN);
+                      ESP_LOGI("button", "momentary_button pressed");
+                      return;
+                    }
+                    if (code == LV_EVENT_SHORT_CLICKED) {
+                      ESP_LOGI("button", "momentary_button starting anti burn-in");
+                      id(lvgl_antiburn_start).execute();
+                      return;
+                    }
+                    if (code == LV_EVENT_RELEASED || code == LV_EVENT_PRESS_LOST) {
+                      lv_obj_set_style_bg_color(id(momentary_button), lv_color_hex(0x2196A7), LV_PART_MAIN);
+                      lv_obj_set_style_border_color(id(momentary_button), lv_color_hex(0x1C6D79), LV_PART_MAIN);
+                      ESP_LOGI("button", "momentary_button released");
+                      return;
+                    }
+            widgets:
+              - label:
+                  id: icon_label_3
+                  text: "\U000F0335"
+                  text_color: 0xFFFFFF
+                  text_font: material_icons_24
+                  align: TOP_LEFT
+                  x: 0
+                  y: 4
+              - label:
+                  id: text_label_3
+                  text: "ANTI\nBURN-IN"
+                  text_color: 0xFFFFFF
+                  text_font: montserrat_14
+                  align: BOTTOM_LEFT
+                  x: 8
+                  y: -8
+        - button:
+            id: momentary_button_2
+            width: 100
+            height: 100
+            x: 370
+            y: 10
+            styles:
+              - momentary_button_style
+            on_all_events:
+              then:
+                - lambda: |-
+                    const auto code = lv_event_get_code(event);
+                    if (code == LV_EVENT_PRESSED) {
+                      lv_obj_set_style_bg_color(id(momentary_button_2), lv_color_hex(0x26BBD3), LV_PART_MAIN);
+                      lv_obj_set_style_border_color(id(momentary_button_2), lv_color_hex(0x3CB9CC), LV_PART_MAIN);
+                      ESP_LOGI("button", "momentary_button_2 pressed");
+                      return;
+                    }
+                    if (code == LV_EVENT_RELEASED || code == LV_EVENT_PRESS_LOST) {
+                      lv_obj_set_style_bg_color(id(momentary_button_2), lv_color_hex(0x2196A7), LV_PART_MAIN);
+                      lv_obj_set_style_border_color(id(momentary_button_2), lv_color_hex(0x1C6D79), LV_PART_MAIN);
+                      ESP_LOGI("button", "momentary_button_2 released");
+                      return;
+                    }
+            widgets:
+              - label:
+                  id: icon_label_4
+                  text: "\U000F0335"
+                  text_color: 0xFFFFFF
+                  text_font: material_icons_24
+                  align: TOP_LEFT
+                  x: 0
+                  y: 4
+              - label:
+                  id: text_label_4
+                  text: "PULSE"
+                  text_color: 0xFFFFFF
+                  text_font: montserrat_14
+                  align: BOTTOM_LEFT
+                  x: 8
+                  y: -8

@@ -1,0 +1,2 @@
+# Python dependencies required to build the ESPHome firmware
+esphome
