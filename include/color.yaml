@@ -1,0 +1,17 @@
+color:
+  - id: momentary_button_pressed_bg
+    hex: '26BBD3'
+  - id: momentary_button_released_bg
+    hex: '2196A7'
+  - id: momentary_button_pressed_border
+    hex: '3CB9CC'
+  - id: momentary_button_released_border
+    hex: '1C6D79'
+  - id: button_on_color
+    hex: '6750A4'
+  - id: button_off_color
+    hex: '33294D'
+  - id: icon_on_color
+    hex: 'FFFFFF'
+  - id: icon_off_color
+    hex: '6750A4'

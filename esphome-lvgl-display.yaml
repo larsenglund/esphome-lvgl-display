@@ -176,7 +176,7 @@ lvgl:
                   id: percent_label_1
                   text: "25"
                   text_color: 0xFFFFFF
-                  text_font: montserrat_outlined_24
+                  text_font: kdam_26
                   align: TOP_RIGHT
                   x: -8
                   y: 4
@@ -184,7 +184,7 @@ lvgl:
                   id: icon_label_1
                   text: "\U000F0335"
                   text_color: 0xFFFFFF
-                  text_font: material_icons_24
+                  text_font: material_icons_large
                   align: TOP_LEFT
                   x: 0
                   y: 4
@@ -192,7 +192,7 @@ lvgl:
                   id: text_label_1
                   text: "PROGRESS\nBAR"
                   text_color: 0xFFFFFF
-                  text_font: montserrat_14
+                  text_font: kdam_16
                   align: BOTTOM_LEFT
                   x: 8
                   y: -8
@@ -235,7 +235,7 @@ lvgl:
                   id: icon_label_2
                   text: "\U000F0335"
                   text_color: 0x6750A4
-                  text_font: material_icons_24
+                  text_font: material_icons_large
                   align: TOP_LEFT
                   x: 0
                   y: 4
@@ -243,7 +243,7 @@ lvgl:
                   id: text_label_2
                   text: "TOGGLE"
                   text_color: 0xFFFFFF
-                  text_font: montserrat_14
+                  text_font: kdam_16
                   align: BOTTOM_LEFT
                   x: 8
                   y: -8
@@ -281,7 +281,7 @@ lvgl:
                   id: icon_label_3
                   text: "\U000F0335"
                   text_color: 0xFFFFFF
-                  text_font: material_icons_24
+                  text_font: material_icons_large
                   align: TOP_LEFT
                   x: 0
                   y: 4
@@ -289,7 +289,7 @@ lvgl:
                   id: text_label_3
                   text: "ANTI\nBURN-IN"
                   text_color: 0xFFFFFF
-                  text_font: montserrat_14
+                  text_font: kdam_16
                   align: BOTTOM_LEFT
                   x: 8
                   y: -8
@@ -322,7 +322,7 @@ lvgl:
                   id: icon_label_4
                   text: "\U000F0335"
                   text_color: 0xFFFFFF
-                  text_font: material_icons_24
+                  text_font: material_icons_large
                   align: TOP_LEFT
                   x: 0
                   y: 4
@@ -330,7 +330,7 @@ lvgl:
                   id: text_label_4
                   text: "PULSE"
                   text_color: 0xFFFFFF
-                  text_font: montserrat_14
+                  text_font: kdam_16
                   align: BOTTOM_LEFT
                   x: 8
                   y: -8

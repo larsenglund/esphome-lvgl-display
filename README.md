@@ -1,4 +1,5 @@
 ESPHome LVGL display for Home Assistant
+
 Extends https://github.com/agillis/esphome-modular-lvgl-buttons (Copyright (c) 2024 Andrew Gillis)
 
 ## ESPHome Setup

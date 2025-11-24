@@ -1,0 +1,48 @@
+            id: mb_${uid}
+            width: 100
+            height: 100
+            # x: 370
+            # y: 10
+            styles:
+              - momentary_button_style
+            on_press:
+              then:
+                - lvgl.widget.update:
+                    id: mb_${uid}
+                    bg_color: momentary_button_pressed_bg
+                    border_color: momentary_button_pressed_border
+                - logger.log:
+                    tag: button
+                    format: "mb_${uid} pressed"
+                - homeassistant.service:
+                    service: scene.turn_on
+                    data:
+                      entity_id: ${entity_id}
+            on_release:
+              then: # &mb_reset_actions
+                - lvgl.widget.update:
+                    id: mb_${uid}
+                    bg_color: momentary_button_released_bg
+                    border_color: momentary_button_released_border
+                - logger.log:
+                    tag: button
+                    format: "mb_${uid} press released or lost"
+            # on_press_lost:
+            #   then: *mb_reset_actions
+            widgets:
+              - label:
+                  id: icon_label_${uid}
+                  text: ${icon}
+                  text_color: 0xFFFFFF
+                  text_font: material_icons_large
+                  align: TOP_LEFT
+                  x: 2
+                  y: 4
+              - label:
+                  id: text_label_${uid}
+                  text: ${text}
+                  text_color: 0xFFFFFF
+                  text_font: kdam_16
+                  align: BOTTOM_LEFT
+                  x: 8
+                  y: -8

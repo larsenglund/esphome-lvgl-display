@@ -1,0 +1,112 @@
+            id: slider_${uid}
+            width: 100
+            height: 100
+            min_value: 0
+            max_value: 100
+            value: 0
+            # x: 10
+            # y: 10
+            on_short_click:
+              - logger.log:
+                  tag: slider
+                  format: "slider_${uid} short click"
+              - homeassistant.action:
+                  action: light.toggle
+                  data:
+                    entity_id: ${entity_id}
+            on_all_events:
+              then:
+                - lambda: |-
+                    const auto code = lv_event_get_code(event);
+                    if (code == LV_EVENT_PRESSED) {
+                      ESP_LOGI("slider", "slider_${uid} pressed");
+                      id(slider_${uid}_prev_value) = lv_slider_get_value(id(slider_${uid}));
+                      id(slider_${uid}_touch_active) = true;
+                      id(slider_${uid}_dragged) = false;
+                      return;
+                    }
+                    if (code == LV_EVENT_PRESSING) {
+                      ESP_LOGI("slider", "slider_${uid} pressing");
+                      auto indev = lv_event_get_indev(event);
+                      if (indev != nullptr) {
+                        lv_point_t vector{};
+                        lv_indev_get_vect(indev, &vector);
+                        if (vector.x != 0 || vector.y != 0) {
+                          id(slider_${uid}_dragged) = true;
+                        }
+                      }
+                      return;
+                    }
+                    if (code == LV_EVENT_VALUE_CHANGED) {
+                      ESP_LOGI("slider", "slider_${uid} event value changed");
+                      const auto slider_value = lv_slider_get_value(id(slider_${uid}));
+                      if (id(slider_${uid}_touch_active) && !id(slider_${uid}_dragged)) {
+                        if (slider_value != id(slider_${uid}_prev_value)) {
+                          lv_slider_set_value(id(slider_${uid}), id(slider_${uid}_prev_value), LV_ANIM_OFF);
+                        }
+                        return;
+                      }
+                      id(slider_${uid}_prev_value) = slider_value;
+                      return;
+                    }
+                    if (code == LV_EVENT_RELEASED) {
+                      ESP_LOGI("slider", "slider_${uid} released");
+                      id(slider_${uid}_touch_active) = false;
+                      id(slider_${uid}_dragged) = false;
+                      return;
+                    }
+                    // if (code == LV_EVENT_SHORT_CLICKED) {
+                    //   ESP_LOGI("slider", "slider_${uid} tapped, resetting to 0%%");
+                    //   id(slider_${uid}_prev_value) = 0;
+                    //   lv_slider_set_value(id(slider_${uid}), 0, LV_ANIM_OFF);
+                    //   lv_event_send(id(slider_${uid}), LV_EVENT_VALUE_CHANGED, nullptr);
+                    //   return;
+                    // }
+                    if (code == LV_EVENT_LONG_PRESSED) {
+                      ESP_LOGI("slider", "slider_${uid} long pressed");
+                    }
+            on_value:
+              - lambda: |-
+                  ESP_LOGI("slider", "slider_${uid} value: %d", (int)x);
+                  ESP_LOGI("slider", "slider_${uid} value nan: %d", x == NULL);
+                  const auto value_str = ((int)x == 0 ? std::string("OFF") : to_string((int)x));
+                  lv_label_set_text(percent_${uid}, value_str.c_str());
+                  const auto color = ((int)x > 0) ? lv_color_hex(0xFFFFFF)
+                                                   : lv_color_hex(0x6750A4);
+                  lv_obj_set_style_text_color(id(percent_${uid}), color, LV_PART_MAIN);
+                  lv_obj_set_style_text_color(id(icon_${uid}), color, LV_PART_MAIN);
+            on_change:
+              - logger.log:
+                  tag: slider
+                  format: "slider_${uid} change %f"
+                  args: [ 'x' ]
+              - homeassistant.action:
+                  action: light.turn_on
+                  data:
+                    entity_id: ${entity_id}
+                    brightness: !lambda return int(x*2.55);
+            widgets:
+              - label:
+                  id: percent_${uid}
+                  text: "0"
+                  text_color: 0xFFFFFF
+                  text_font: kdam_26
+                  align: TOP_RIGHT
+                  x: -8
+                  y: 4
+              - label:
+                  id: icon_${uid}
+                  text: ${icon}
+                  text_color: 0xFFFFFF
+                  text_font: material_icons_large
+                  align: TOP_LEFT
+                  x: 2
+                  y: 4
+              - label:
+                  id: text_${uid}
+                  text: ${text}
+                  text_color: 0xFFFFFF
+                  text_font: kdam_16
+                  align: BOTTOM_LEFT
+                  x: 8
+                  y: -8

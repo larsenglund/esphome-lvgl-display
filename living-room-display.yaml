@@ -1,0 +1,173 @@
+substitutions:
+  device_name: living-room-display
+
+esphome:
+  name: ${device_name}
+  friendly_name: "Living room display"
+
+packages:
+  network: !include include/network.yaml # WiFi, API and OTA configuration
+  hardware: !include include/guition-esp32-s3-4848s040.yaml # Harware description file
+  color: !include include/color.yaml # Color definitions
+  fonts: !include include/fonts.yaml # Some nice basic fonts
+  glyphs: !include include/mdi_glyph_substitutions.yaml # 1000s of glyphs
+  sensors: !include include/sensors_base.yaml # Some basic sensors
+
+  slider_1_state: !include
+    file: include/dimmer_light_state.yaml
+    vars:
+      uid: slider_1
+      entity_id: "light.dinner_table"
+
+  button_1_state: !include
+    file: include/switch_or_light_button_state.yaml
+    vars:
+      uid: button_1
+      entity_id: "light.esphome_light_rotting_liten_esphome_light_rotting_liten"
+  
+  button_2_state: !include
+    file: include/switch_or_light_button_state.yaml
+    vars:
+      uid: button_2
+      entity_id: "light.rislampa_salen_socket_1"
+
+logger:
+
+image:
+  - file: radial_bg.png
+    id: page_background
+    resize: 480x480
+    type: RGB565
+
+lvgl:
+  displays:
+    - tft_display
+  touchscreens:
+    - tft_touch
+  color_depth: 16
+  
+  theme:
+    slider:
+      bg_color: 0x33294D
+      bg_opa: 100%
+      outline_width: 2
+      outline_color: 0x6750A4
+      radius: 8
+      pad_all: 0
+      # shadow_width: 15
+      # shadow_color: 0x33294D
+      # shadow_ofs_y: 8
+      # shadow_opa: 40%
+      indicator:
+        bg_color: 0x6750A4
+        pad_all: 0
+        radius: 0
+      knob:
+        bg_opa: 0
+        border_width: 0
+        pad_all: 0
+
+  style_definitions:
+    - id: square_toggle_style
+      bg_color: 0x33294D
+      bg_opa: 100%
+      outline_width: 2
+      outline_color: 0x6750A4
+      border_width: 0
+      radius: 8
+      pad_all: 0
+      # shadow_width: 15
+      # shadow_color: 0x33294D
+      # shadow_ofs_y: 8
+      # shadow_opa: 40%
+
+    - id: momentary_button_style
+      bg_color: momentary_button_released_bg
+      bg_opa: 100%
+      outline_width: 2
+      outline_color: momentary_button_released_border
+      radius: 8
+      pad_all: 0
+      # shadow_width: 15
+      # shadow_color: 0x33294D
+      # shadow_ofs_y: 8
+      # shadow_opa: 40%
+
+  top_layer:
+    widgets:
+      - label:
+          text: $mdi_wifi
+          text_font: material_icons_small
+          id: lbl_hastatus
+          hidden: true
+          align: top_right
+          text_align: right
+          text_color: 0xff4800
+
+  pages:
+    - id: main_page
+      layout:
+        type: flex
+        flex_flow: ROW_WRAP
+        pad_column: 20
+        pad_row: 20
+      width: 100%
+      pad_all: 10
+      bg_image_src: page_background
+      widgets:
+        - button: !include
+            file: include/scene_button.yaml
+            vars:
+              uid: scene_1
+              text: "DINNER"
+              icon: $mdi_food_variant
+              entity_id: "scene.dinner"
+
+        - button: !include
+            file: include/scene_button.yaml
+            vars:
+              uid: scene_2
+              text: "BREAK-\nFAST"
+              icon: $mdi_food_croissant
+              entity_id: "scene.breakfast"
+
+        - button: !include
+            file: include/scene_button.yaml
+            vars:
+              uid: scene_3
+              text: "COSY"
+              icon: $mdi_candle
+              entity_id: "scene.cosy"
+
+        - button: !include
+            file: include/scene_button.yaml
+            vars:
+              uid: scene_4
+              text: "NIGHT"
+              icon: $mdi_weather_night
+              entity_id: "scene.night"
+
+        - slider: !include
+            file: include/slider_button.yaml
+            vars:
+              uid: slider_1
+              text: "DINNER-\nTABLE"
+              icon: $mdi_ceiling_light_multiple
+              entity_id: "light.dinner_table"
+
+        - obj: !include
+            file: include/light_button.yaml
+            vars:
+              uid: button_1
+              text: "CANELAMP"
+              icon: $mdi_lightbulb
+              entity_id: "light.esphome_light_rotting_liten_esphome_light_rotting_liten"
+
+        - obj: !include
+            file: include/light_button.yaml
+            vars:
+              uid: button_2
+              text: "RICELAMP"
+              icon: $mdi_lightbulb
+              entity_id: "light.rislampa_salen_socket_1"
+
