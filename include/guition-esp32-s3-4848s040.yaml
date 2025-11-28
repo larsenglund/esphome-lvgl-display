@@ -142,9 +142,9 @@ touchscreen:
 #      mirror_x: true
   transform:
     mirror_x: false
-  on_release:
-    then:
-      - script.execute: lvgl_antiburn_stop
+  # on_release:
+  #   then:
+  #     - script.execute: lvgl_antiburn_stop
   # on_touch:
     # - logger.log:
           # format: Touch at (%d, %d)

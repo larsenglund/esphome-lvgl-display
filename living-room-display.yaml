@@ -1,9 +1,19 @@
 substitutions:
   device_name: living-room-display
+  touchscreen_idle_timeout: "60s"
+  touchscreen_daytime_brightness: "80%"
+  touchscreen_nighttime_brightness: "50%"
 
 esphome:
   name: ${device_name}
   friendly_name: "Living room display"
+
+# Time update script - This is run once per second. Use it to update any time related labels.
+script:
+  - id: time_update
+    then:
+      - lambda: |-
+          // No operation
 
 packages:
   network: !include include/network.yaml # WiFi, API and OTA configuration
@@ -12,6 +22,7 @@ packages:
   fonts: !include include/fonts.yaml # Some nice basic fonts
   glyphs: !include include/mdi_glyph_substitutions.yaml # 1000s of glyphs
   sensors: !include include/sensors_base.yaml # Some basic sensors
+  backlight: !include include/time_and_backlight.yaml # Time and backlight management
 
   slider_1_state: !include
     file: include/dimmer_light_state.yaml
@@ -32,6 +43,7 @@ packages:
       entity_id: "light.rislampa_salen_socket_1"
 
 logger:
+  level: DEBUG
 
 image:
   - file: radial_bg.png
@@ -76,10 +88,6 @@ lvgl:
       border_width: 0
       radius: 8
       pad_all: 0
-      # shadow_width: 15
-      # shadow_color: 0x33294D
-      # shadow_ofs_y: 8
-      # shadow_opa: 40%
 
     - id: momentary_button_style
       bg_color: momentary_button_released_bg
@@ -88,10 +96,6 @@ lvgl:
       outline_color: momentary_button_released_border
       radius: 8
       pad_all: 0
-      # shadow_width: 15
-      # shadow_color: 0x33294D
-      # shadow_ofs_y: 8
-      # shadow_opa: 40%
 
   top_layer:
     widgets:
