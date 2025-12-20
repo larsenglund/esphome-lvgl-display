@@ -40,18 +40,18 @@ packages:
     vars:
       uid: slider_1
       entity_id: "light.esphome_stairs_stair_lights"
-
+  
   slider_2_state: !include
     file: include/dimmer_light_state.yaml
     vars:
       uid: slider_2
       entity_id: "light.staircase_ceiling"
 
-  cover_1_state: !include
-    file: include/cover_button_state.yaml
+  button_1_state: !include
+    file: include/switch_or_light_button_state.yaml
     vars:
-      uid: cover_1
-      entity_id: "cover.esphome_garage_cover_garage_door"
+      uid: button_1
+      entity_id: "light.desk_lights"
 
 logger:
   level: DEBUG
@@ -126,38 +126,6 @@ lvgl:
       pad_all: 10
       bg_image_src: page_background
       widgets:
-        - button: !include
-            file: include/scene_button.yaml
-            vars:
-              uid: scene_1
-              text: "MIDDAG"
-              icon: $mdi_food_variant
-              entity_id: "scene.dinner"
-
-        - button: !include
-            file: include/scene_button.yaml
-            vars:
-              uid: scene_2
-              text: "FRUKOST"
-              icon: $mdi_food_croissant
-              entity_id: "scene.breakfast"
-
-        - button: !include
-            file: include/scene_button.yaml
-            vars:
-              uid: scene_3
-              text: "MYS"
-              icon: $mdi_candle
-              entity_id: "scene.cosy"
-
-        - button: !include
-            file: include/scene_button.yaml
-            vars:
-              uid: scene_4
-              text: "NATT"
-              icon: $mdi_weather_night
-              entity_id: "scene.night"
-
         - slider: !include
             file: include/slider_button.yaml
             vars:
@@ -175,11 +143,20 @@ lvgl:
               entity_id: "light.staircase_ceiling"
 
         - obj: !include
-            file: include/cover_button.yaml
+            file: include/light_button.yaml
             vars:
-              uid: cover_1
-              text: "GARAGE"
-              entity_id: "cover.esphome_garage_cover_garage_door"
+              uid: button_1
+              text: "DESK"
+              icon: $mdi_lightbulb
+              entity_id: "light.desk_lights"
+
+        - button: !include
+            file: include/scene_button.yaml
+            vars:
+              uid: button_2
+              text: "SCENE"
+              icon: $mdi_test_tube
+              entity_id: "scene.test"
 
         - obj: !include
             file: include/transparent_empty_button.yaml
@@ -200,11 +177,6 @@ lvgl:
             file: include/transparent_empty_button.yaml
             vars:
               uid: button_spacer_4
-
-        - obj: !include
-            file: include/transparent_empty_button.yaml
-            vars:
-              uid: button_spacer_5
 
         - obj: !include
             file: include/time_button.yaml

@@ -15,3 +15,5 @@ color:
     hex: 'FFFFFF'
   - id: icon_off_color
     hex: '6750A4'
+  - id: button_moving_color
+    hex: 'F08C00'

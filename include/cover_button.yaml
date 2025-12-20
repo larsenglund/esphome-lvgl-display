@@ -1,0 +1,55 @@
+id: button_${uid}
+width: 100
+height: 100
+clickable: true
+checkable: false
+styles:
+  - square_toggle_style
+on_press:
+  - if:
+      condition:
+        lambda: |-
+          auto state = id(cover_state_${uid}).state;
+          return state == "opening" || state == "closing";
+      then:
+        - logger.log:
+            tag: button
+            format: "cover_${uid} ignored press while moving"
+      else:
+        - if:
+            condition:
+              lambda: |-
+                return id(cover_state_${uid}).state == "open";
+            then:
+              - logger.log:
+                  tag: button
+                  format: "cover_${uid} closing"
+              - homeassistant.service:
+                  service: cover.close_cover
+                  data:
+                    entity_id: ${entity_id}
+            else:
+              - logger.log:
+                  tag: button
+                  format: "cover_${uid} opening"
+              - homeassistant.service:
+                  service: cover.open_cover
+                  data:
+                    entity_id: ${entity_id}
+widgets:
+  - label:
+      id: icon_${uid}
+      text: $mdi_garage
+      text_color: icon_off_color
+      text_font: material_icons_large
+      align: TOP_LEFT
+      x: 2
+      y: 4
+  - label:
+      id: text_${uid}
+      text: ${text}
+      text_color: 0xFFFFFF
+      text_font: kdam_16
+      align: BOTTOM_LEFT
+      x: 8
+      y: -8

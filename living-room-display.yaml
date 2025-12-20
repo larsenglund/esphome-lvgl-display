@@ -13,7 +13,18 @@ script:
   - id: time_update
     then:
       - lambda: |-
-          // No operation
+          auto time = id(system_time).now();
+          if (time.is_valid()) {
+            // Update time label (HH:MM)
+            lv_label_set_text_fmt(id(lbl_time), "%02d:%02d", time.hour, time.minute);
+            
+            // Update date label (Day DD/MM)
+            const char* days[] = {"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Lör"};
+            lv_label_set_text_fmt(id(lbl_date), "%s %02d/%02d", 
+                                  days[time.day_of_week - 1], 
+                                  time.day_of_month, 
+                                  time.month);
+          }
 
 packages:
   network: !include include/network.yaml # WiFi, API and OTA configuration
@@ -28,7 +39,25 @@ packages:
     file: include/dimmer_light_state.yaml
     vars:
       uid: slider_1
-      entity_id: "light.dinner_table"
+      entity_id: "light.dinner_table" # TODO: can we grab the entity_id from the button definition to only define it once?
+
+  slider_2_state: !include
+    file: include/dimmer_light_state.yaml
+    vars:
+      uid: slider_2
+      entity_id: "light.bokhyllefotolj"
+
+  slider_3_state: !include
+    file: include/dimmer_light_state.yaml
+    vars:
+      uid: slider_3
+      entity_id: "light.bookshelf"
+
+  slider_4_state: !include
+    file: include/dimmer_light_state.yaml
+    vars:
+      uid: slider_4
+      entity_id: "light.sofa_ceiling"
 
   button_1_state: !include
     file: include/switch_or_light_button_state.yaml
@@ -66,10 +95,6 @@ lvgl:
       outline_color: 0x6750A4
       radius: 8
       pad_all: 0
-      # shadow_width: 15
-      # shadow_color: 0x33294D
-      # shadow_ofs_y: 8
-      # shadow_opa: 40%
       indicator:
         bg_color: 0x6750A4
         pad_all: 0
@@ -123,7 +148,7 @@ lvgl:
             file: include/scene_button.yaml
             vars:
               uid: scene_1
-              text: "DINNER"
+              text: "MIDDAG"
               icon: $mdi_food_variant
               entity_id: "scene.dinner"
 
@@ -131,7 +156,7 @@ lvgl:
             file: include/scene_button.yaml
             vars:
               uid: scene_2
-              text: "BREAK-\nFAST"
+              text: "FRUKOST"
               icon: $mdi_food_croissant
               entity_id: "scene.breakfast"
 
@@ -139,7 +164,7 @@ lvgl:
             file: include/scene_button.yaml
             vars:
               uid: scene_3
-              text: "COSY"
+              text: "MYS"
               icon: $mdi_candle
               entity_id: "scene.cosy"
 
@@ -147,7 +172,7 @@ lvgl:
             file: include/scene_button.yaml
             vars:
               uid: scene_4
-              text: "NIGHT"
+              text: "NATT"
               icon: $mdi_weather_night
               entity_id: "scene.night"
 
@@ -155,7 +180,7 @@ lvgl:
             file: include/slider_button.yaml
             vars:
               uid: slider_1
-              text: "DINNER-\nTABLE"
+              text: "MIDDAGS\nBORD"
               icon: $mdi_ceiling_light_multiple
               entity_id: "light.dinner_table"
 
@@ -163,7 +188,7 @@ lvgl:
             file: include/light_button.yaml
             vars:
               uid: button_1
-              text: "CANELAMP"
+              text: "ROTTING\nLAMPA"
               icon: $mdi_lightbulb
               entity_id: "light.esphome_light_rotting_liten_esphome_light_rotting_liten"
 
@@ -171,7 +196,45 @@ lvgl:
             file: include/light_button.yaml
             vars:
               uid: button_2
-              text: "RICELAMP"
+              text: "RISLAMPA"
               icon: $mdi_lightbulb
               entity_id: "light.rislampa_salen_socket_1"
 
+        - slider: !include
+            file: include/slider_button.yaml
+            vars:
+              uid: slider_2
+              text: "FOTOLJ\nBOKHYLLA"
+              icon: $mdi_ceiling_light
+              entity_id: "light.bokhyllefotolj"
+
+        - slider: !include
+            file: include/slider_button.yaml
+            vars:
+              uid: slider_3
+              text: "BOKHYLLA"
+              icon: $mdi_track_light
+              entity_id: "light.bookshelf"
+
+        - slider: !include
+            file: include/slider_button.yaml
+            vars:
+              uid: slider_4
+              text: "SOFFBORD"
+              icon: $mdi_track_light
+              entity_id: "light.sofa_ceiling"
+
+        - obj: !include
+            file: include/transparent_empty_button.yaml
+            vars:
+              uid: button_spacer_1
+
+        - obj: !include
+            file: include/transparent_empty_button.yaml
+            vars:
+              uid: button_spacer_2
+
+        - obj: !include
+            file: include/time_button.yaml
+            vars:
+              uid: button_time_1

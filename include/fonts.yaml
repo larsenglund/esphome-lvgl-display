@@ -2,7 +2,7 @@ font:
   - file: "gfonts://Kdam Thmor Pro"
     id: kdam_26
     size: 26
-    glyphs: "0123456789OFN"
+    glyphs: "0123456789OFN:"
     bpp: 8
   
   - file: "gfonts://Kdam Thmor Pro"
@@ -27,6 +27,11 @@ font:
       - $mdi_food_variant
       - $mdi_food_croissant
       - $mdi_ceiling_light_multiple
+      - $mdi_ceiling_light
+      - $mdi_track_light
+      - $mdi_garage
+      - $mdi_garage_open
+      - $mdi_garage_alert
     bpp: 8
   
   - file: "https://github.com/Templarian/MaterialDesign-Webfont/raw/master/fonts/materialdesignicons-webfont.ttf"

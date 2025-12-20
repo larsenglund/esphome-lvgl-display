@@ -1,0 +1,46 @@
+---
+# Cover widget state management
+text_sensor:
+  - platform: homeassistant
+    id: cover_state_${uid}
+    entity_id: ${entity_id}
+    internal: true
+    on_value:
+      then:
+        - lambda: |-
+            ESP_LOGD("cover", "cover_%s state updated: %s", "${uid}", id(cover_state_${uid}).state.c_str());
+        - if:
+            condition:
+              lambda: |-
+                auto state = id(cover_state_${uid}).state;
+                return state == "open";
+            then:
+              - lvgl.widget.update:
+                  id: button_${uid}
+                  bg_color: button_on_color
+              - lvgl.label.update:
+                  id: icon_${uid}
+                  text_color: icon_on_color
+                  text: $mdi_garage_open
+            else:
+              - if:
+                  condition:
+                    lambda: |-
+                      auto state = id(cover_state_${uid}).state;
+                      return state == "closed";
+                  then:
+                    - lvgl.widget.update:
+                        id: button_${uid}
+                        bg_color: button_off_color
+                    - lvgl.label.update:
+                        id: icon_${uid}
+                        text_color: icon_off_color
+                        text: $mdi_garage
+                  else:
+                    - lvgl.widget.update:
+                        id: button_${uid}
+                        bg_color: button_moving_color
+                    - lvgl.label.update:
+                        id: icon_${uid}
+                        text_color: icon_on_color
+                        text: $mdi_garage_alert
