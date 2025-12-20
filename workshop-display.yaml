@@ -1,12 +1,12 @@
 substitutions:
-  device_name: kitchen-display
+  device_name: workshop-display
   touchscreen_idle_timeout: "60s"
   touchscreen_daytime_brightness: "80%"
   touchscreen_nighttime_brightness: "50%"
 
 esphome:
   name: ${device_name}
-  friendly_name: "Kitchen display"
+  friendly_name: "Workshop display"
 
 # Time update script - This is run once per second. Use it to update any time related labels.
 script:
@@ -147,7 +147,7 @@ lvgl:
             vars:
               uid: button_1
               text: "DESK"
-              icon: $mdi_lightbulb
+              icon: $mdi_ceiling_light_multiple
               entity_id: "light.desk_lights"
 
         - button: !include
