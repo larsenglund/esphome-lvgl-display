@@ -19,7 +19,7 @@ script:
             lv_label_set_text_fmt(id(lbl_time), "%02d:%02d", time.hour, time.minute);
             
             // Update date label (Day DD/MM)
-            const char* days[] = {"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Lör"};
+            const char* days[] = {"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};
             lv_label_set_text_fmt(id(lbl_date), "%s %02d/%02d", 
                                   days[time.day_of_week - 1], 
                                   time.day_of_month, 
