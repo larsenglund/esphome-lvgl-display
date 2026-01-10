@@ -25,6 +25,8 @@ Extends https://github.com/agillis/esphome-modular-lvgl-buttons (Copyright (c) 2
 5. Build/flash your node:
 	```powershell
 	python -m esphome run custom_slider.yaml
+	or
+	python -m esphome run living-room-display.yaml --device living-room-display.local
 	```
 
 Troubleshooting tips:

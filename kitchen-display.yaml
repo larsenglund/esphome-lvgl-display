@@ -47,11 +47,25 @@ packages:
       uid: slider_2
       entity_id: "light.staircase_ceiling"
 
+  slider_3_state: !include
+    file: include/dimmer_light_state.yaml
+    vars:
+      uid: slider_3
+      entity_id: "light.esphome_light_d1_2_esphome_light_d1_2"
+
   cover_1_state: !include
     file: include/cover_button_state.yaml
     vars:
       uid: cover_1
       entity_id: "cover.esphome_garage_cover_garage_door"
+
+  temp_outdoor_state: !include
+    file: include/temperature_state.yaml
+    vars:
+      uid: temp_outdoor
+      entity_id: "sensor.esphome_outdoor_humiture_bme280_temperature"
+      entity_id_min: "sensor.esphome_outdoor_humiture_bme280_temperature_min"
+      entity_id_max: "sensor.esphome_outdoor_humiture_bme280_temperature_max"
 
 logger:
   level: DEBUG
@@ -174,6 +188,14 @@ lvgl:
               icon: $mdi_ceiling_light_multiple
               entity_id: "light.staircase_ceiling"
 
+        - slider: !include
+            file: include/slider_button.yaml
+            vars:
+              uid: slider_3
+              text: "HALL\nTAK"
+              icon: $mdi_ceiling_light_multiple
+              entity_id: "light.esphome_light_d1_2_esphome_light_d1_2"
+
         - obj: !include
             file: include/cover_button.yaml
             vars:
@@ -181,10 +203,10 @@ lvgl:
               text: "GARAGE"
               entity_id: "cover.esphome_garage_cover_garage_door"
 
-        - obj: !include
-            file: include/transparent_empty_button.yaml
-            vars:
-              uid: button_spacer_1
+        # - obj: !include
+        #     file: include/transparent_empty_button.yaml
+        #     vars:
+        #       uid: button_spacer_1
 
         - obj: !include
             file: include/transparent_empty_button.yaml
@@ -210,3 +232,19 @@ lvgl:
             file: include/time_button.yaml
             vars:
               uid: button_time_1
+
+        - obj: !include
+            file: include/transparent_empty_button.yaml
+            vars:
+              uid: button_spacer_6
+
+        - obj: !include
+            file: include/transparent_empty_button.yaml
+            vars:
+              uid: button_spacer_7
+
+        - obj: !include
+            file: include/temperature_button.yaml
+            vars:
+              uid: temp_outdoor
+              text: "UTE"

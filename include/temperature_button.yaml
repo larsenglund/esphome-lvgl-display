@@ -1,0 +1,78 @@
+id: obj_${uid}
+width: 100
+height: 100
+bg_opa: 0%
+border_width: 0
+outline_width: 0
+shadow_width: 0
+pad_all: 0
+widgets:
+  - label:
+      id: text_label_${uid}
+      text: ${text}
+      text_color: 0xFFFFFF
+      text_font: kdam_16
+      align: TOP_MID
+      x: 0
+      y: 8
+  - label:
+      id: value_label_${uid}
+      text: "--.-"
+      text_color: 0xFFFFFF
+      text_font: kdam_26
+      align: CENTER
+      y: 0
+  - obj:
+      id: min_container_${uid}
+      width: SIZE_CONTENT
+      height: SIZE_CONTENT
+      align: BOTTOM_LEFT
+      x: 0
+      y: -9
+      bg_opa: 0%
+      border_width: 0
+      pad_all: 0
+      layout:
+        type: FLEX
+        flex_flow: ROW
+        flex_align_main: START
+        flex_align_cross: CENTER
+      widgets:
+        - label:
+            id: min_icon_label_${uid}
+            text: $mdi_thermometer_low
+            text_color: 0xFFFFFF
+            text_font: material_icons_small
+        - label:
+            id: min_label_${uid}
+            text: "--.-"
+            text_color: 0xFFFFFF
+            text_font: kdam_14
+            pad_left: -6
+  - obj:
+      id: max_container_${uid}
+      width: SIZE_CONTENT
+      height: SIZE_CONTENT
+      align: BOTTOM_RIGHT
+      x: 0
+      y: -9
+      bg_opa: 0%
+      border_width: 0
+      pad_all: 0
+      layout:
+        type: FLEX
+        flex_flow: ROW
+        flex_align_main: START
+        flex_align_cross: CENTER
+      widgets:
+        - label:
+            id: max_icon_label_${uid}
+            text: $mdi_thermometer_high
+            text_color: 0xFFFFFF
+            text_font: material_icons_small
+        - label:
+            id: max_label_${uid}
+            text: "--.-"
+            text_color: 0xFFFFFF
+            text_font: kdam_14
+            pad_left: -6

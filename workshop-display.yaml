@@ -53,6 +53,14 @@ packages:
       uid: button_1
       entity_id: "light.desk_lights"
 
+  temp_outdoor_state: !include
+    file: include/temperature_state.yaml
+    vars:
+      uid: temp_outdoor
+      entity_id: "sensor.esphome_outdoor_humiture_bme280_temperature"
+      entity_id_min: "sensor.esphome_outdoor_humiture_bme280_temperature_min"
+      entity_id_max: "sensor.esphome_outdoor_humiture_bme280_temperature_max"
+
 logger:
   level: DEBUG
 
@@ -182,3 +190,19 @@ lvgl:
             file: include/time_button.yaml
             vars:
               uid: button_time_1
+
+        - obj: !include
+            file: include/transparent_empty_button.yaml
+            vars:
+              uid: button_spacer_5
+
+        - obj: !include
+            file: include/transparent_empty_button.yaml
+            vars:
+              uid: button_spacer_6
+
+        - obj: !include
+            file: include/temperature_button.yaml
+            vars:
+              uid: temp_outdoor
+              text: "UTE"

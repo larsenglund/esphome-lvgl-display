@@ -1,0 +1,39 @@
+# vars:
+#   uid: Unique ID matching the UI widget
+#   entity_id: Home Assistant sensor entity_id
+#   entity_id_min: Home Assistant min temperature sensor
+#   entity_id_max: Home Assistant max temperature sensor
+
+sensor:
+  - platform: homeassistant
+    id: temp_sensor_${uid}
+    entity_id: ${entity_id}
+    on_value:
+      then:
+        - lvgl.label.update:
+            id: value_label_${uid}
+            text:
+              format: "%.1f"
+              args: [ 'x' ]
+
+  - platform: homeassistant
+    id: temp_min_${uid}
+    entity_id: ${entity_id_min}
+    on_value:
+      then:
+        - lvgl.label.update:
+            id: min_label_${uid}
+            text:
+              format: "%.1f"
+              args: [ 'x' ]
+
+  - platform: homeassistant
+    id: temp_max_${uid}
+    entity_id: ${entity_id_max}
+    on_value:
+      then:
+        - lvgl.label.update:
+            id: max_label_${uid}
+            text:
+              format: "%.1f"
+              args: [ 'x' ]

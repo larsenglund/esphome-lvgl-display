@@ -2,7 +2,7 @@ font:
   - file: "gfonts://Kdam Thmor Pro"
     id: kdam_26
     size: 26
-    glyphs: "0123456789OFN:"
+    glyphs: "0123456789OFN:-.°C"
     bpp: 8
   
   - file: "gfonts://Kdam Thmor Pro"
@@ -13,7 +13,7 @@ font:
   - file: "gfonts://Kdam Thmor Pro"
     id: kdam_14
     size: 14
-    glyphs: "%"
+    glyphs: "-.0123456789%"
     bpp: 8
   
   - file: "https://github.com/Templarian/MaterialDesign-Webfont/raw/master/fonts/materialdesignicons-webfont.ttf"
@@ -32,6 +32,7 @@ font:
       - $mdi_garage
       - $mdi_garage_open
       - $mdi_garage_alert
+      - $mdi_thermometer
     bpp: 8
   
   - file: "https://github.com/Templarian/MaterialDesign-Webfont/raw/master/fonts/materialdesignicons-webfont.ttf"
@@ -39,6 +40,10 @@ font:
     size: 14
     glyphs:
       - $mdi_wifi      # "\U000F1EB"  # wifi icon
+      - $mdi_thermometer_high
+      - $mdi_thermometer_low
+      - $mdi_menu_up
+      - $mdi_menu_down
     bpp: 8
 
   # - file: "esphome-modular-lvgl-buttons/assets/fonts/Nunito-SemiBold.ttf"
