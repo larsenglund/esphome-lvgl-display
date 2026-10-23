@@ -1,0 +1,22 @@
+# Extra fonts for the large (2x2) buttons. Only include on displays that use them.
+font:
+  - file: "gfonts://Kdam Thmor Pro"
+    id: kdam_32
+    size: 32
+    glyphs: " ABCDEFGHIJKLMNOPQRSTUVWXYZÅÄÖ"
+    bpp: 8
+
+  - file: "gfonts://Kdam Thmor Pro"
+    id: kdam_20
+    size: 20
+    glyphs: " ABCDEFGHIJKLMNOPQRSTUVWXYZÅÄÖ"
+    bpp: 8
+
+  - file: "https://github.com/Templarian/MaterialDesign-Webfont/raw/master/fonts/materialdesignicons-webfont.ttf"
+    id: material_icons_xlarge
+    size: 100
+    glyphs:
+      - $mdi_garage
+      - $mdi_garage_open
+      - $mdi_garage_alert
+    bpp: 8

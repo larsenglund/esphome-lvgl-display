@@ -3,6 +3,10 @@
 #   entity_id: Home Assistant sensor entity_id
 #   entity_id_min: Home Assistant min temperature sensor
 #   entity_id_max: Home Assistant max temperature sensor
+#
+# When a sensor is "unknown"/"unavailable" in Home Assistant it arrives as NaN.
+# Plain "%.1f" would print "nan", and the kdam fonts have no 'n'/'a' glyphs, so
+# LVGL draws placeholder boxes. Show "--.-" instead.
 
 sensor:
   - platform: homeassistant
@@ -12,9 +16,7 @@ sensor:
       then:
         - lvgl.label.update:
             id: value_label_${uid}
-            text:
-              format: "%.1f"
-              args: [ 'x' ]
+            text: !lambda 'return std::isnan(x) ? std::string("--.-") : str_sprintf("%.1f", x);'
 
   - platform: homeassistant
     id: temp_min_${uid}
@@ -23,9 +25,7 @@ sensor:
       then:
         - lvgl.label.update:
             id: min_label_${uid}
-            text:
-              format: "%.1f"
-              args: [ 'x' ]
+            text: !lambda 'return std::isnan(x) ? std::string("--.-") : str_sprintf("%.1f", x);'
 
   - platform: homeassistant
     id: temp_max_${uid}
@@ -34,6 +34,4 @@ sensor:
       then:
         - lvgl.label.update:
             id: max_label_${uid}
-            text:
-              format: "%.1f"
-              args: [ 'x' ]
+            text: !lambda 'return std::isnan(x) ? std::string("--.-") : str_sprintf("%.1f", x);'

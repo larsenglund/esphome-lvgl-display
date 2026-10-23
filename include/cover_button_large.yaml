@@ -1,0 +1,71 @@
+# Large cover button, takes up 2x2 regular buttons. Must be placed on a page with a grid layout.
+# Needs include/fonts_large.yaml and include/cover_button_large_state.yaml
+# vars:
+#   uid: <unique identifier, must match the state include>
+#   text: <button label>
+#   entity_id: <Home Assistant cover entity_id>
+id: button_${uid}
+width: 220
+height: 220
+grid_cell_row_span: 2
+grid_cell_column_span: 2
+clickable: true
+checkable: false
+styles:
+  - square_toggle_style
+on_press:
+  - if:
+      condition:
+        lambda: |-
+          auto state = id(cover_state_${uid}).state;
+          return state == "opening" || state == "closing";
+      then:
+        - logger.log:
+            tag: button
+            format: "cover_${uid} ignored press while moving"
+      else:
+        - if:
+            condition:
+              lambda: |-
+                return id(cover_state_${uid}).state == "open";
+            then:
+              - logger.log:
+                  tag: button
+                  format: "cover_${uid} closing"
+              - homeassistant.service:
+                  service: cover.close_cover
+                  data:
+                    entity_id: ${entity_id}
+            else:
+              - logger.log:
+                  tag: button
+                  format: "cover_${uid} opening"
+              - homeassistant.service:
+                  service: cover.open_cover
+                  data:
+                    entity_id: ${entity_id}
+widgets:
+  - label:
+      id: icon_${uid}
+      text: $mdi_garage
+      text_color: icon_off_color
+      text_font: material_icons_xlarge
+      align: TOP_LEFT
+      x: 2
+      y: 6
+  - label:
+      id: text_${uid}
+      text: ${text}
+      text_color: 0xFFFFFF
+      text_font: kdam_32
+      align: BOTTOM_LEFT
+      x: 14
+      y: -40
+  - label:
+      id: status_${uid}
+      text: " "
+      text_color: 0xFFFFFF
+      text_font: kdam_20
+      align: BOTTOM_LEFT
+      x: 14
+      y: -14

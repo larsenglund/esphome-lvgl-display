@@ -10,6 +10,8 @@ time:
             - text_sensor.template.publish:
                 id: device_last_restart
                 state: !lambda 'return id(system_time).now().strftime("%a %d %b %Y - %I:%M:%S %p");'
+      # Show the clock right away instead of "00:00" until the next full minute
+      - script.execute: time_update
     on_time:
       # Run every minute
       - seconds: 0
