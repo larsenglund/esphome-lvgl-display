@@ -35,6 +35,7 @@ packages:
   glyphs: !include include/mdi_glyph_substitutions.yaml # 1000s of glyphs
   sensors: !include include/sensors_base.yaml # Some basic sensors
   backlight: !include include/time_and_backlight.yaml # Time and backlight management
+  screenshot: !include include/screenshot.yaml # http://hallway-display.local/screenshot
 
   cover_1_state: !include
     file: include/cover_button_large_state.yaml
@@ -52,6 +53,13 @@ packages:
     file: include/dimmer_light_state.yaml
     vars:
       uid: slider_2
+      entity_id: "light.esphome_stairs_stair_lights"
+
+  slider_2_popup: !include
+    file: include/light_popup.yaml
+    vars:
+      uid: stairs
+      title: "TRAPPSTEG"
       entity_id: "light.esphome_stairs_stair_lights"
 
   slider_3_state: !include
@@ -73,6 +81,17 @@ packages:
       entity_id: "sensor.esphome_outdoor_humiture_bme280_temperature"
       entity_id_min: "sensor.esphome_outdoor_humiture_bme280_temperature_min"
       entity_id_max: "sensor.esphome_outdoor_humiture_bme280_temperature_max"
+
+# Where a touch on the TRAPP STEG slider started, to tell a long press from a slow drag
+globals:
+  - id: slider_2_press_x
+    type: int
+    restore_value: no
+    initial_value: '0'
+  - id: slider_2_press_y
+    type: int
+    restore_value: no
+    initial_value: '0'
 
 logger:
   level: DEBUG
@@ -198,13 +217,35 @@ lvgl:
               icon: $mdi_ceiling_light_multiple
               entity_id: "light.esphome_light_d1_2_esphome_light_d1_2"
 
-        - slider: !include
-            file: include/slider_button.yaml
-            vars:
-              uid: slider_2
-              text: "TRAPP\nSTEG"
-              icon: $mdi_lightbulb
-              entity_id: "light.esphome_stairs_stair_lights"
+        - slider:
+            <<: !include
+              file: include/slider_button.yaml
+              vars:
+                uid: slider_2
+                text: "TRAPP\nSTEG"
+                icon: $mdi_lightbulb
+                entity_id: "light.esphome_stairs_stair_lights"
+            # Long press (finger held still) opens the colour/effect popup, dragging still dims
+            on_press:
+              - lambda: |-
+                  lv_point_t point;
+                  lv_indev_get_point(lv_indev_get_act(), &point);
+                  id(slider_2_press_x) = point.x;
+                  id(slider_2_press_y) = point.y;
+            on_long_press:
+              - if:
+                  condition:
+                    lambda: |-
+                      lv_point_t point;
+                      lv_indev_get_point(lv_indev_get_act(), &point);
+                      return abs(point.x - id(slider_2_press_x)) < 12 && abs(point.y - id(slider_2_press_y)) < 12;
+                  then:
+                    - lambda: |-
+                        // Ignore the rest of this touch, so the release neither dims nor toggles
+                        id(slider_slider_2_touch_active) = false;
+                        id(slider_slider_2_dragged) = false;
+                        lv_indev_wait_release(lv_indev_get_act());
+                    - script.execute: popup_stairs_open
 
         - slider: !include
             file: include/slider_button.yaml

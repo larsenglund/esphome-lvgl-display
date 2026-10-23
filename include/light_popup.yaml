@@ -1,0 +1,449 @@
+---
+# Popup with colour and effect controls for an RGB(W) light, shown on the top layer.
+# Open it with `script.execute: popup_${uid}_open`, e.g. from a long press on the light's slider.
+# The effect list is read from the light's effect_list attribute in Home Assistant.
+# Needs include/fonts_large.yaml
+# vars:
+#   uid: <unique identifier for the popup>
+#   title: <heading, upper case>
+#   entity_id: <Home Assistant light entity_id>
+
+api:
+  actions:
+    # Open the popup from Home Assistant without touching the screen,
+    # e.g. esphome.hallway_display_open_stairs_popup together with /screenshot
+    - action: open_${uid}_popup
+      then:
+        - script.execute: popup_${uid}_open
+
+script:
+  - id: popup_${uid}_open
+    then:
+      - lvgl.widget.show: popup_${uid}
+      - script.execute: popup_${uid}_autoclose
+
+  - id: popup_${uid}_close
+    then:
+      - script.stop: popup_${uid}_autoclose
+      - lambda: 'lv_dropdown_close(id(popup_${uid}_effects)->obj);'
+      - lvgl.widget.hide: popup_${uid}
+
+  # Close by itself when left open, restarted by every interaction
+  - id: popup_${uid}_autoclose
+    mode: restart
+    then:
+      - delay: 30s
+      - script.execute: popup_${uid}_close
+
+  # Colours also stop any running effect and keep the brightness Home Assistant knows about
+  # (effects change brightness on the light without reporting it)
+  - id: popup_${uid}_set_rgb
+    parameters:
+      red: int
+      green: int
+      blue: int
+    then:
+      - homeassistant.action:
+          action: light.turn_on
+          data:
+            entity_id: ${entity_id}
+            effect: "None"
+          data_template:
+            rgb_color: !lambda 'return str_sprintf("{{ [%d, %d, %d] }}", red, green, blue);'
+            brightness: "{{ state_attr('${entity_id}', 'brightness') or 255 }}"
+      - script.execute: popup_${uid}_autoclose
+
+  - id: popup_${uid}_set_white
+    then:
+      - homeassistant.action:
+          action: light.turn_on
+          data:
+            entity_id: ${entity_id}
+            effect: "None"
+          data_template:
+            white: "{{ state_attr('${entity_id}', 'brightness') or 255 }}"
+      - script.execute: popup_${uid}_autoclose
+
+  # Select the light's current effect in the dropdown
+  - id: popup_${uid}_sync_effect
+    then:
+      - lambda: |-
+          auto *dropdown = id(popup_${uid}_effects);
+          const auto &options = dropdown->get_options();
+          const auto &effect = id(popup_${uid}_effect).state;
+          size_t index = 0;
+          for (size_t i = 1; i < options.size(); i++) {
+            if (options[i] == effect)
+              index = i;
+          }
+          dropdown->set_selected_index(index, LV_ANIM_OFF);
+
+text_sensor:
+  - platform: homeassistant
+    id: popup_${uid}_effect_list
+    entity_id: ${entity_id}
+    attribute: effect_list
+    internal: true
+    on_value:
+      - lambda: |-
+          // Home Assistant sends the list as Python text: ['None', 'Regnbåge', ...]
+          std::vector<std::string> options{"Ingen effekt"};
+          size_t i = 0;
+          while (i < x.size()) {
+            const char quote = x[i];
+            if (quote != '\'' && quote != '"') {
+              i++;
+              continue;
+            }
+            const size_t end = x.find(quote, i + 1);
+            if (end == std::string::npos)
+              break;
+            const std::string name = x.substr(i + 1, end - i - 1);
+            if (name != "None" && name != "off")
+              options.push_back(name);
+            i = end + 1;
+          }
+          id(popup_${uid}_effects)->set_options(options);
+      - script.execute: popup_${uid}_sync_effect
+
+  - platform: homeassistant
+    id: popup_${uid}_effect
+    entity_id: ${entity_id}
+    attribute: effect
+    internal: true
+    on_value:
+      - script.execute: popup_${uid}_sync_effect
+
+  # Move the hue knob to the light's colour, e.g. "(25.0, 100.0)"
+  - platform: homeassistant
+    id: popup_${uid}_hs_color
+    entity_id: ${entity_id}
+    attribute: hs_color
+    internal: true
+    on_value:
+      - lambda: |-
+          const size_t start = x.find_first_of("0123456789");
+          if (start == std::string::npos)
+            return;
+          const int hue = atoi(x.c_str() + start);
+          lv_slider_set_value(id(popup_${uid}_hue), hue, LV_ANIM_OFF);
+
+lvgl:
+  gradients:
+    # Positions are 0-255. ESPHome turns "17%" into lv_pct(17), which LVGL reads as 17/255.
+    # Inset so the colours line up with the knob, which travels inside 19 px padding on a 404 px slider.
+    - id: popup_${uid}_hue_gradient
+      direction: hor
+      stops:
+        - color: 0xFF0000
+          position: 12
+        - color: 0xFFFF00
+          position: 50
+        - color: 0x00FF00
+          position: 89
+        - color: 0x00FFFF
+          position: 128
+        - color: 0x0000FF
+          position: 166
+        - color: 0xFF00FF
+          position: 205
+        - color: 0xFF0000
+          position: 243
+
+  top_layer:
+    widgets:
+      # Dimmed full screen backdrop, tapping outside the panel closes the popup
+      - obj:
+          id: popup_${uid}
+          hidden: true
+          align: CENTER
+          width: 480
+          height: 480
+          bg_color: 0x000000
+          bg_opa: 60%
+          border_width: 0
+          radius: 0
+          pad_all: 0
+          scrollable: false
+          on_click:
+            - script.execute: popup_${uid}_close
+          widgets:
+            - obj:
+                id: popup_${uid}_panel
+                align: CENTER
+                width: 440
+                height: 352
+                bg_color: 0x221B36
+                bg_opa: 100%
+                border_width: 2
+                border_color: 0x6750A4
+                radius: 12
+                pad_all: 16
+                scrollable: false
+                widgets:
+                  - label:
+                      text: ${title}
+                      text_color: 0xFFFFFF
+                      text_font: kdam_20
+                      align: TOP_LEFT
+                      y: 4
+
+                  - button:
+                      align: TOP_RIGHT
+                      x: 6
+                      y: -6
+                      width: 44
+                      height: 44
+                      bg_opa: 0%
+                      shadow_width: 0
+                      border_width: 0
+                      on_click:
+                        - script.execute: popup_${uid}_close
+                      widgets:
+                        - label:
+                            text: $mdi_close
+                            text_font: material_icons_medium
+                            text_color: 0xFFFFFF
+                            align: CENTER
+
+                  # Colour swatches
+                  - obj:
+                      align: TOP_MID
+                      y: 50
+                      width: 100%
+                      height: SIZE_CONTENT
+                      bg_opa: 0%
+                      border_width: 0
+                      pad_all: 0
+                      scrollable: false
+                      layout:
+                        type: flex
+                        flex_flow: ROW_WRAP
+                        pad_column: 10
+                        pad_row: 10
+                      widgets:
+                        - button:
+                            width: 72
+                            height: 52
+                            radius: 10
+                            border_width: 0
+                            shadow_width: 0
+                            bg_color: 0xFF0000
+                            on_click:
+                              - script.execute:
+                                  id: popup_${uid}_set_rgb
+                                  red: 255
+                                  green: 0
+                                  blue: 0
+                        - button:
+                            width: 72
+                            height: 52
+                            radius: 10
+                            border_width: 0
+                            shadow_width: 0
+                            bg_color: 0xFF5A00
+                            on_click:
+                              - script.execute:
+                                  id: popup_${uid}_set_rgb
+                                  red: 255
+                                  green: 90
+                                  blue: 0
+                        - button:
+                            width: 72
+                            height: 52
+                            radius: 10
+                            border_width: 0
+                            shadow_width: 0
+                            bg_color: 0xFFC800
+                            on_click:
+                              - script.execute:
+                                  id: popup_${uid}_set_rgb
+                                  red: 255
+                                  green: 200
+                                  blue: 0
+                        - button:
+                            width: 72
+                            height: 52
+                            radius: 10
+                            border_width: 0
+                            shadow_width: 0
+                            bg_color: 0x00FF00
+                            on_click:
+                              - script.execute:
+                                  id: popup_${uid}_set_rgb
+                                  red: 0
+                                  green: 255
+                                  blue: 0
+                        - button:
+                            width: 72
+                            height: 52
+                            radius: 10
+                            border_width: 0
+                            shadow_width: 0
+                            bg_color: 0x00FFAA
+                            on_click:
+                              - script.execute:
+                                  id: popup_${uid}_set_rgb
+                                  red: 0
+                                  green: 255
+                                  blue: 170
+                        - button:
+                            width: 72
+                            height: 52
+                            radius: 10
+                            border_width: 0
+                            shadow_width: 0
+                            bg_color: 0x00AAFF
+                            on_click:
+                              - script.execute:
+                                  id: popup_${uid}_set_rgb
+                                  red: 0
+                                  green: 170
+                                  blue: 255
+                        - button:
+                            width: 72
+                            height: 52
+                            radius: 10
+                            border_width: 0
+                            shadow_width: 0
+                            bg_color: 0x0000FF
+                            on_click:
+                              - script.execute:
+                                  id: popup_${uid}_set_rgb
+                                  red: 0
+                                  green: 0
+                                  blue: 255
+                        - button:
+                            width: 72
+                            height: 52
+                            radius: 10
+                            border_width: 0
+                            shadow_width: 0
+                            bg_color: 0x8C00FF
+                            on_click:
+                              - script.execute:
+                                  id: popup_${uid}_set_rgb
+                                  red: 140
+                                  green: 0
+                                  blue: 255
+                        - button:
+                            width: 72
+                            height: 52
+                            radius: 10
+                            border_width: 0
+                            shadow_width: 0
+                            bg_color: 0xFF008C
+                            on_click:
+                              - script.execute:
+                                  id: popup_${uid}_set_rgb
+                                  red: 255
+                                  green: 0
+                                  blue: 140
+                        # White LEDs (the RGB LEDs are off in white mode)
+                        - button:
+                            width: 72
+                            height: 52
+                            radius: 10
+                            border_width: 0
+                            shadow_width: 0
+                            bg_color: 0xFFFFFF
+                            on_click:
+                              - script.execute: popup_${uid}_set_white
+                            widgets:
+                              - label:
+                                  text: "VIT"
+                                  text_font: kdam_16
+                                  text_color: 0x221B36
+                                  align: CENTER
+
+                  # Any colour, sent when the knob is released
+                  - slider:
+                      id: popup_${uid}_hue
+                      align: TOP_MID
+                      y: 182
+                      width: 100%
+                      height: 26
+                      min_value: 0
+                      max_value: 359
+                      value: 0
+                      bg_grad: popup_${uid}_hue_gradient
+                      bg_opa: 100%
+                      radius: 13
+                      outline_width: 0
+                      border_width: 0
+                      pad_top: 0
+                      pad_bottom: 0
+                      # Side padding = knob radius, so the knob stays inside the track at both ends
+                      pad_left: 19
+                      pad_right: 19
+                      indicator:
+                        bg_opa: 0%
+                      knob:
+                        bg_color: 0xFFFFFF
+                        bg_opa: 100%
+                        radius: 19
+                        border_width: 3
+                        border_color: 0x221B36
+                        pad_all: 6
+                      on_release:
+                        - homeassistant.action:
+                            action: light.turn_on
+                            data:
+                              entity_id: ${entity_id}
+                              effect: "None"
+                            data_template:
+                              hs_color: !lambda 'return str_sprintf("{{ [%d, 100] }}", (int) x);'
+                              brightness: "{{ state_attr('${entity_id}', 'brightness') or 255 }}"
+                        - script.execute: popup_${uid}_autoclose
+
+                  - label:
+                      text: "EFFEKT"
+                      text_color: 0xFFFFFF
+                      text_font: kdam_16
+                      align: TOP_LEFT
+                      y: 226
+
+                  - dropdown:
+                      id: popup_${uid}_effects
+                      align: TOP_MID
+                      y: 254
+                      width: 100%
+                      height: 50
+                      dir: TOP
+                      options: ["Ingen effekt"]
+                      symbol: $mdi_menu_down
+                      text_font: kdam_18
+                      text_color: 0xFFFFFF
+                      bg_color: 0x33294D
+                      bg_opa: 100%
+                      border_width: 2
+                      border_color: 0x6750A4
+                      radius: 8
+                      pad_left: 14
+                      pad_right: 14
+                      pad_top: 12
+                      indicator:
+                        text_font: material_icons_medium
+                        text_color: 0xFFFFFF
+                      dropdown_list:
+                        text_font: kdam_18
+                        text_color: 0xFFFFFF
+                        bg_color: 0x33294D
+                        bg_opa: 100%
+                        border_width: 2
+                        border_color: 0x6750A4
+                        radius: 8
+                        max_height: 260
+                        selected:
+                          bg_color: 0x6750A4
+                          checked:
+                            bg_color: 0x6750A4
+                      on_change:
+                        - homeassistant.action:
+                            action: light.turn_on
+                            data:
+                              entity_id: ${entity_id}
+                              effect: !lambda 'return text == "Ingen effekt" ? std::string("None") : text;'
+                            data_template:
+                              brightness: "{{ state_attr('${entity_id}', 'brightness') or 255 }}"
+                        - script.execute: popup_${uid}_autoclose

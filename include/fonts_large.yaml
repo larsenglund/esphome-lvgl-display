@@ -1,5 +1,22 @@
-# Extra fonts for the large (2x2) buttons. Only include on displays that use them.
+# Extra fonts for the large (2x2) buttons and the light popup. Only include on displays that use them.
 font:
+  # Mixed case with Swedish letters, for effect names coming from Home Assistant
+  - file: "gfonts://Kdam Thmor Pro"
+    id: kdam_18
+    size: 18
+    glyphsets: [GF_Latin_Kernel]
+    glyphs: "ÅÄÖåäö"
+    ignore_missing_glyphs: true
+    bpp: 8
+
+  - file: "https://github.com/Templarian/MaterialDesign-Webfont/raw/master/fonts/materialdesignicons-webfont.ttf"
+    id: material_icons_medium
+    size: 28
+    glyphs:
+      - $mdi_close
+      - $mdi_menu_down
+    bpp: 8
+
   - file: "gfonts://Kdam Thmor Pro"
     id: kdam_32
     size: 32

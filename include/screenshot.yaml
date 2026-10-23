@@ -1,0 +1,11 @@
+---
+# Serves what is on the screen as a BMP image at http://<device>/screenshot
+# Handy for checking layouts without standing at the display. LAN only, no login.
+external_components:
+  - source:
+      type: local
+      path: components
+    components: [display_screenshot]
+
+display_screenshot:
+  display_id: tft_display
