@@ -15,6 +15,7 @@ font:
     glyphs:
       - $mdi_close
       - $mdi_menu_down
+      - $mdi_brightness_6
     bpp: 8
 
   - file: "gfonts://Kdam Thmor Pro"

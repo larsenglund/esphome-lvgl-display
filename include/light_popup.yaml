@@ -128,6 +128,20 @@ text_sensor:
           const int hue = atoi(x.c_str() + start);
           lv_slider_set_value(id(popup_${uid}_hue), hue, LV_ANIM_OFF);
 
+sensor:
+  # Move the brightness knob to the light's brightness (0-255), unless it is being dragged
+  - platform: homeassistant
+    id: popup_${uid}_brightness_state
+    entity_id: ${entity_id}
+    attribute: brightness
+    internal: true
+    on_value:
+      - lambda: |-
+          auto *slider = id(popup_${uid}_brightness);
+          if (std::isnan(x) || lv_obj_has_state(slider, LV_STATE_PRESSED))
+            return;
+          lv_slider_set_value(slider, std::max(1, (int) lroundf(x / 2.55f)), LV_ANIM_OFF);
+
 lvgl:
   gradients:
     # Positions are 0-255. ESPHome turns "17%" into lv_pct(17), which LVGL reads as 17/255.
@@ -149,6 +163,14 @@ lvgl:
           position: 205
         - color: 0xFF0000
           position: 243
+
+    - id: popup_${uid}_brightness_gradient
+      direction: hor
+      stops:
+        - color: 0x101010
+          position: 0
+        - color: 0xFFFFFF
+          position: 255
 
   top_layer:
     widgets:
@@ -172,7 +194,7 @@ lvgl:
                 id: popup_${uid}_panel
                 align: CENTER
                 width: 440
-                height: 352
+                height: 400
                 bg_color: 0x221B36
                 bg_opa: 100%
                 border_width: 2
@@ -396,17 +418,60 @@ lvgl:
                               brightness: "{{ state_attr('${entity_id}', 'brightness') or 255 }}"
                         - script.execute: popup_${uid}_autoclose
 
+                  # Brightness of the colour or the white LEDs, sent when the knob is released.
+                  # Leaves a running effect on (effects that set their own brightness ignore it).
+                  - label:
+                      text: $mdi_brightness_6
+                      text_font: material_icons_medium
+                      text_color: 0xFFFFFF
+                      align: TOP_LEFT
+                      y: 229
+                  - slider:
+                      id: popup_${uid}_brightness
+                      align: TOP_RIGHT
+                      y: 232
+                      width: 364
+                      height: 26
+                      min_value: 1
+                      max_value: 100
+                      value: 100
+                      bg_grad: popup_${uid}_brightness_gradient
+                      bg_opa: 100%
+                      radius: 13
+                      outline_width: 0
+                      border_width: 0
+                      pad_top: 0
+                      pad_bottom: 0
+                      pad_left: 19
+                      pad_right: 19
+                      indicator:
+                        bg_opa: 0%
+                      knob:
+                        bg_color: 0xFFFFFF
+                        bg_opa: 100%
+                        radius: 19
+                        border_width: 3
+                        border_color: 0x221B36
+                        pad_all: 6
+                      on_release:
+                        - homeassistant.action:
+                            action: light.turn_on
+                            data:
+                              entity_id: ${entity_id}
+                              brightness_pct: !lambda 'return to_string((int) x);'
+                        - script.execute: popup_${uid}_autoclose
+
                   - label:
                       text: "EFFEKT"
                       text_color: 0xFFFFFF
                       text_font: kdam_16
                       align: TOP_LEFT
-                      y: 226
+                      y: 274
 
                   - dropdown:
                       id: popup_${uid}_effects
                       align: TOP_MID
-                      y: 254
+                      y: 302
                       width: 100%
                       height: 50
                       dir: TOP
