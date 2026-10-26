@@ -1,0 +1,4 @@
+(sym_lib_table
+  (version 7)
+  (lib (name "addon")(type "KiCad")(uri "${KIPRJMOD}/../lib/addon.kicad_sym")(options "")(descr "Add-on board symbols (custom)"))
+)

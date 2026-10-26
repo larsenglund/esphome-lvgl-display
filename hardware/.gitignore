@@ -1,0 +1,12 @@
+# KiCad local files
+*-backups/
+*.kicad_prl
+fp-info-cache
+_autosave-*
+*.lck
+~*.lck
+_render_*.kicad_pcb
+_render_*.kicad_pro
+*.net
+__pycache__/
+*/mockup/*.stl

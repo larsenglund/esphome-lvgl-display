@@ -1,0 +1,25 @@
+(version 1)
+
+# Header and jack pins at the board edge or between neighbouring pins can't
+# get two thermal spokes; one 0.5 mm spoke carries far more than they need,
+# and a full connection would make them hard to hand-solder.
+(rule "THT pads: one thermal spoke is enough"
+  (constraint min_resolved_spokes 1)
+  (condition "A.Type == 'Pad' && A.Pad_Type == 'Through-hole'"))
+
+# The NODE's edge-hole rows (and the matching headers on its carriers) are
+# split into several 2.54 mm strips that continue each other end to end.
+(rule "pin-header strips continue each other"
+  (constraint courtyard_clearance (min -1mm))
+  (condition "A.Library_Link == 'Connector_PinHeader_2.54mm:*' && B.Library_Link == 'Connector_PinHeader_2.54mm:*'"))
+
+# The radar sits right under key 1, so on its 2.5 mm header it reaches over key 1's lower
+# edge, the notch in the bar and the break-away bridges (their mouse-bite holes).
+(rule "radar floats over the break line"
+  (constraint courtyard_clearance (min -25mm))
+  (condition "A.Reference == 'U3' || B.Reference == 'U3'"))
+
+# Each key LED sits in its switch's LED slot, under the switch.
+(rule "LED in the switch's LED slot"
+  (constraint courtyard_clearance (min -10mm))
+  (condition "A.Reference == 'D*' && B.Reference == 'SW*'"))

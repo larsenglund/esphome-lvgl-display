@@ -1,0 +1,71 @@
+(footprint "MouseBite_4mm_Traces"
+	(version 20260206)
+	(generator "pcbnew")
+	(generator_version "10.0")
+	(layer "F.Cu")
+	(descr "Break-away bridge, 4 mm: 0.5 mm holes on the board edge line")
+	(property "Reference" "REF**"
+		(at 0 -1.2 0)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "40188e05-9360-40b2-bee5-aed0e1dddc50")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Value" "MouseBite_4mm_Traces"
+		(at 0 1.2 0)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "1815af5a-60db-4802-8f5f-d282be6fbe6c")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Datasheet" ""
+		(at 0 0 0)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "6272f21e-1c6c-42a1-8794-6f452aab870d")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Description" ""
+		(at 0 0 0)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "610827db-9ca8-4041-b958-3515581e9385")
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+		)
+	)
+	(attr board_only exclude_from_pos_files exclude_from_bom)
+	(duplicate_pad_numbers_are_jumpers no)
+	(pad "" np_thru_hole circle
+		(at -1.6 0)
+		(size 0.5 0.5)
+		(drill 0.5)
+		(layers "*.Cu" "*.Mask")
+		(uuid "35250d71-0542-4a7c-a715-10e47ae6c9de")
+	)
+	(pad "" np_thru_hole circle
+		(at 1.6 0)
+		(size 0.5 0.5)
+		(drill 0.5)
+		(layers "*.Cu" "*.Mask")
+		(uuid "be9656e8-11f8-4118-9288-d3fe9d4756e9")
+	)
+	(embedded_fonts no)
+)

@@ -1,0 +1,4 @@
+(fp_lib_table
+  (version 7)
+  (lib (name "addon")(type "KiCad")(uri "${KIPRJMOD}/../lib/addon.pretty")(options "")(descr "Add-on board footprints (LCSC imports and custom)"))
+)

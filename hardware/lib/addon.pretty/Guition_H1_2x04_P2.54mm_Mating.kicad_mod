@@ -1,0 +1,173 @@
+(footprint "Guition_H1_2x04_P2.54mm_Mating"
+	(version 20260206)
+	(generator "pcbnew")
+	(generator_version "10.0")
+	(layer "F.Cu")
+	(descr "Male 2x04 2.54 mm header that plugs into the Guition ESP32-S3-4848S040's H1 socket from the front; pads numbered as H1 (odd column towards the panel's centre)")
+	(property "Reference" "REF**"
+		(at 0 -6.2 0)
+		(layer "F.SilkS")
+		(uuid "ed730cca-6dd6-4f10-9054-8f3d005e7382")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Value" "Guition H1"
+		(at 0 6.2 0)
+		(layer "F.Fab")
+		(uuid "ae9199b6-d734-41e6-8920-dc33e16a766c")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Datasheet" ""
+		(at 0 0 0)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "24d8fc53-36fc-45cc-8594-49f771728b81")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Description" ""
+		(at 0 0 0)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "8a67e89a-aefb-42a3-85ec-ca233095f953")
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+		)
+	)
+	(attr through_hole)
+	(duplicate_pad_numbers_are_jumpers no)
+	(fp_line
+		(start 2.9 -5.4)
+		(end 2.9 -2.6)
+		(stroke
+			(width 0.15)
+			(type solid)
+		)
+		(layer "F.SilkS")
+		(uuid "db922298-04f2-4ff7-a724-fdd1d1fc346e")
+	)
+	(fp_rect
+		(start -2.6 -5.14)
+		(end 2.6 5.14)
+		(stroke
+			(width 0.15)
+			(type solid)
+		)
+		(fill no)
+		(layer "F.SilkS")
+		(uuid "6181bb5d-326a-4c32-b061-38b47df4a8c0")
+	)
+	(fp_rect
+		(start -3.05 -5.6)
+		(end 3.05 5.6)
+		(stroke
+			(width 0.05)
+			(type solid)
+		)
+		(fill no)
+		(layer "F.CrtYd")
+		(uuid "9b224bc3-dbac-4797-8fef-dc9d4c8dcca7")
+	)
+	(fp_rect
+		(start -2.54 -5.08)
+		(end 2.54 5.08)
+		(stroke
+			(width 0.1)
+			(type solid)
+		)
+		(fill no)
+		(layer "F.Fab")
+		(uuid "5ef2885d-245e-4bd9-9970-479da1055d63")
+	)
+	(pad "1" thru_hole rect
+		(at 1.27 -3.81)
+		(size 1.7 1.7)
+		(drill 1)
+		(layers "*.Cu" "*.Mask")
+		(remove_unused_layers no)
+		(uuid "1e4cc5e5-9168-4cdf-8119-ecf760a1f38e")
+	)
+	(pad "2" thru_hole circle
+		(at -1.27 -3.81)
+		(size 1.7 1.7)
+		(drill 1)
+		(layers "*.Cu" "*.Mask")
+		(remove_unused_layers no)
+		(uuid "6e1f4f08-03cf-4542-8925-d9b78a386247")
+	)
+	(pad "3" thru_hole circle
+		(at 1.27 -1.27)
+		(size 1.7 1.7)
+		(drill 1)
+		(layers "*.Cu" "*.Mask")
+		(remove_unused_layers no)
+		(uuid "b248db3e-5252-4de0-b1ce-6b10f8ef10b3")
+	)
+	(pad "4" thru_hole circle
+		(at -1.27 -1.27)
+		(size 1.7 1.7)
+		(drill 1)
+		(layers "*.Cu" "*.Mask")
+		(remove_unused_layers no)
+		(uuid "e89541bc-035b-4898-8afc-6b89c5b75798")
+	)
+	(pad "5" thru_hole circle
+		(at 1.27 1.27)
+		(size 1.7 1.7)
+		(drill 1)
+		(layers "*.Cu" "*.Mask")
+		(remove_unused_layers no)
+		(uuid "e6cbd930-12fb-46c1-a9d7-832db8dcbe5a")
+	)
+	(pad "6" thru_hole circle
+		(at -1.27 1.27)
+		(size 1.7 1.7)
+		(drill 1)
+		(layers "*.Cu" "*.Mask")
+		(remove_unused_layers no)
+		(uuid "5f691247-7905-4613-8c5a-639496d2c104")
+	)
+	(pad "7" thru_hole circle
+		(at 1.27 3.81)
+		(size 1.7 1.7)
+		(drill 1)
+		(layers "*.Cu" "*.Mask")
+		(remove_unused_layers no)
+		(uuid "2dc4cab2-d5c4-41c8-bd7b-65988ee664aa")
+	)
+	(pad "8" thru_hole circle
+		(at -1.27 3.81)
+		(size 1.7 1.7)
+		(drill 1)
+		(layers "*.Cu" "*.Mask")
+		(remove_unused_layers no)
+		(uuid "636de76e-472e-4e85-9d87-23c1a8940462")
+	)
+	(embedded_fonts no)
+	(model "${KICAD10_3DMODEL_DIR}/Connector_PinHeader_2.54mm.3dshapes/PinHeader_2x04_P2.54mm_Vertical.step"
+		(offset
+			(xyz -1.27 3.81 0)
+		)
+		(scale
+			(xyz 1 1 1)
+		)
+		(rotate
+			(xyz 0 0 0)
+		)
+	)
+)
