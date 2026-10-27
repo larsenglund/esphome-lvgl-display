@@ -134,7 +134,7 @@ The two boards use the same pins, so one firmware can serve both. It needs to kn
 - **Radar header:** the radar's pins must come out of the non-antenna side.
 - **LED fit:** check that a 1206 LED fits in the switch's LED slot. From the datasheet the slot is about 9.4 x 2.7 mm.
 - **SHT40 soldering:** plan how to solder it: hot air or a hot plate, or have JLCPCB fit just that part.
-- **Alignment test:** print `addon-keys/mockup/addon-keys-alignment.stl` or `addon-encoders/mockup/addon-encoders-alignment.stl` (`tools/export_jig_stl.py`), hot-glue a 2x4 header into it and try it on a panel. Its pin holes are opened up for printing: 1.5 mm for the 2.54 mm headers (J1, J4, radar), 1.3 mm for the encoder pins, and the encoder tab slots by 0.2 mm.
+- **Alignment test:** print `addon-keys/mockup/addon-keys-alignment.stl` or `addon-encoders/mockup/addon-encoders-alignment.stl` (`tools/export_jig_stl.py`), hot-glue a 2x4 header into it and try it on a panel. Its pin holes are opened up for printing: 1.7 mm for the 2.54 mm headers (J1, J4, radar), 1.5 mm for the encoder pins, and the encoder tab slots by 0.2 mm.
 - **Routing:** not done yet.
 - **Firmware:** still to write: the CH32V003 firmware and the ESPHome component that talks to it.
 
