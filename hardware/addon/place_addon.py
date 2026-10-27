@@ -17,12 +17,13 @@ wall box and away from the SHT40.
   enclosure all round. It ends 1.1 mm above a 5 mm bottom border.
 - keys: switches turned 90 deg counter-clockwise, so the socket pads stay
   inside the switch outline and the LED slot faces right. The radar is on a
-  break-away piece at the bar's left end, its top edge 0.3 mm below key 1's
-  switch body, so the bottom border with the radar is ~17.4 mm. The break line
-  steps up under it (a notch in the bar's bottom edge, hidden behind the 5 mm
-  border when the piece is snapped off). Three 4 mm bridges with 0.5 mm
-  mouse-bite holes; the five radar tracks cross the left one between its two
-  end holes.
+  break-away piece centred under key 2, its top edge 0.3 mm below key 2's
+  switch body (as close as the switch allows), so the bottom border with the
+  radar is ~17.4 mm. The break line steps up under it (a notch in the bar's
+  bottom edge, hidden behind the 5 mm border when the piece is snapped off).
+  Three 4 mm bridges with 0.5 mm mouse-bite holes: one in each side gap and
+  one across the top gap, right of key 2's socket; the five radar tracks cross
+  the left one between its two end holes.
 - encoders: the knobs (25 mm) as far apart as the enclosure allows: 5 mm
   border, 1 mm gap, knob ... knob, 1 mm, 5 mm, so 48.6 mm between centres.
   The same top to bottom, so the bar is 5 mm taller than the keys board's and
@@ -32,6 +33,8 @@ wall box and away from the SHT40.
   slots land on the switches' holes and pads in every rotation.
 - SHT40 (bare, 1.5 mm DFN) on a U-tab at the bar's right end, beside key 3 or
   encoder 2, with its capacitor; free lower end near the bottom edge.
+- Spare pads (J5) and test points on the bar's back, in a row along its top
+  edge, below the tab, behind the enclosure's top border.
 - Panel: 86.5 x 86.5 x 13.6 mm (Guition's drawing). Its H1 header (2x4,
   2.54 mm) was measured: centre 23.7 mm left of and 16.2 mm below the
   panel's centre, seen from the front (HDR_*).
@@ -83,35 +86,37 @@ EX0, EX1 = BL - WALL, BR + WALL # enclosure's outer edges
 ENC_X = [EX0 + BORDER + GAP + KNOB / 2, EX1 - BORDER - GAP - KNOB / 2]   # 48.6 mm apart
 FACE = CAP if BUILD == "keys" else KNOB              # keycap or knob, with 1 mm gaps and the border round it
 YBR = YB0 + BORDER + 2 * GAP + FACE + BORDER - WALL  # bar bottom: 1.1 mm above a 5 mm border
-# break-away radar piece at the bar's left end, as close to key 1 as the switch allows: the
-# radar's top edge 0.3 mm below key 1's switch body. Under it the break line moves up to just
-# below key 1's lowest copper (its socket pad, 8.64 mm below the key centre), notching the
-# bar's bottom edge; in a build without the radar the notch hides behind the 5 mm border.
-RX = BL + 0.3 + 10.0            # radar centre x: 0.3 mm in from the bar's left edge
-RY = YK + 6.98 + 0.3 + 10.0     # radar centre y: top edge 0.3 mm below key 1's switch body
+# break-away radar piece centred under key 2, as close to it as the switch allows: the radar's
+# top edge 0.3 mm below key 2's switch body. Under it the break line moves up to just below
+# key 2's lowest copper (its socket pad, 8.64 mm below the key centre), notching the bar's
+# bottom edge; in a build without the radar the notch hides behind the 5 mm border.
+RX = EC                         # radar centre x: under key 2
+RY = YK + 6.98 + 0.3 + 10.0     # radar centre y: top edge 0.3 mm below key 2's switch body
 YNB = YK + 8.64 + 0.36          # the bar's edge above the piece (top of the notch)
 YPT = YNB + 1.0                 # piece top: 1 mm routed gap
 YPB = RY + 10.0                 # piece bottom = the radar's bottom edge
-PX0, PX1 = BL, RX + 10.5        # piece left and right edges
-# 4 mm bridges: two across the top gap, clear of key 1's socket and its courtyard (x 9.9-16.3,
-# reaching 8.9 mm below the key centre), and one across the gap on the piece's right side.
-# The first, by the radar's header column, carries its five tracks.
-BRIDGES = [RX - 6.8, RX + 6.7]  # x centres, top gap
-BR_Y = YPT + 2.45               # y centre, right-side gap
+PX0, PX1 = RX - 10.5, RX + 10.5 # piece left and right edges, 1 mm gaps beside them
+# 4 mm bridges: one across each side gap and one across the top gap, right of key 2's socket
+# and its courtyard (x -7.0 to -0.6 from the key centre, reaching 8.9 mm below it), where no
+# 4 mm bridge fits on its left. The left one, by the radar's header column, carries its five
+# tracks.
+TOP_BRIDGE = RX + 6.7           # x centre, top gap
+BR_Y = YPT + 2.45               # y centre, side gaps
 TX0, TX1 = CX + TAB_X0, CX + TAB_X0 + TAB_W
 
 if BUILD == "keys":
     OUTLINE = [(TX0, 0), (TX1, 0), (TX1, YB0), (BR, YB0), (BR, YBR), (PX1 + 1.0, YBR), (PX1 + 1.0, BR_Y + 2),
-               (PX1, BR_Y + 2), (PX1, YPB), (PX0, YPB), (PX0, YPT), (BRIDGES[0] - 2, YPT),
-               (BRIDGES[0] - 2, YNB), (BL, YNB), (BL, YB0), (TX0, YB0)]
+               (PX1, BR_Y + 2), (PX1, YPB), (PX0, YPB), (PX0, BR_Y + 2), (PX0 - 1.0, BR_Y + 2),
+               (PX0 - 1.0, YBR), (BL, YBR), (BL, YB0), (TX0, YB0)]
     BOTTOM = YPB
 else:
     OUTLINE = [(TX0, 0), (TX1, 0), (TX1, YB0), (BR, YB0), (BR, YBR), (BL, YBR), (BL, YB0), (TX0, YB0)]
     BOTTOM = YBR
-# the gaps between the bridges: closed cut-outs (the second one is L-shaped, round the corner)
-GAPS = [[(BRIDGES[0] + 2, YNB), (BRIDGES[1] - 2, YNB), (BRIDGES[1] - 2, YPT), (BRIDGES[0] + 2, YPT)],
-        [(BRIDGES[1] + 2, YNB), (PX1 + 1.0, YNB), (PX1 + 1.0, BR_Y - 2), (PX1, BR_Y - 2), (PX1, YPT),
-         (BRIDGES[1] + 2, YPT)]]
+# the gaps between the bridges: two closed L-shaped cut-outs, round the piece's top corners
+GAPS = [[(PX0 - 1.0, YNB), (TOP_BRIDGE - 2, YNB), (TOP_BRIDGE - 2, YPT), (PX0, YPT), (PX0, BR_Y - 2),
+         (PX0 - 1.0, BR_Y - 2)],
+        [(TOP_BRIDGE + 2, YNB), (PX1 + 1.0, YNB), (PX1 + 1.0, BR_Y - 2), (PX1, BR_Y - 2), (PX1, YPT),
+         (TOP_BRIDGE + 2, YPT)]]
 
 # SHT40 U-tab at the bar's right end: from key 3's LED pads (x +KP + 5.955 from the middle
 # key) or encoder 2's right mounting-tab pad (+6.9) to the board edge. Two 1 mm slots joined
@@ -126,7 +131,7 @@ TONGUE_X = (UL + 1.0 + UR - 1.0) / 2
 
 if BUILD == "keys":
     pcbbuild.DRU += """
-# The radar sits right under key 1, so on its 2.5 mm header it reaches over key 1's lower
+# The radar sits right under key 2, so on its 2.5 mm header it reaches over key 2's lower
 # edge, the notch in the bar and the break-away bridges (their mouse-bite holes).
 (rule "radar floats over the break line"
   (constraint courtyard_clearance (min -25mm))
@@ -142,8 +147,8 @@ b = Board(HERE / f"{PROJECT}.kicad_sch", W, BOTTOM, layers=2, outline=OUTLINE)
 LABELS = []
 
 
-def label(s, x, y, size=1.0, back=False):
-    t = b.text(s, x, y, size=size, layer=pcbnew.B_SilkS if back else pcbnew.F_SilkS)
+def label(s, x, y, size=1.0, back=False, rot=0):
+    t = b.text(s, x, y, size=size, rot=rot, layer=pcbnew.B_SilkS if back else pcbnew.F_SilkS)
     t.SetTextThickness(pcbnew.FromMM(0.15))
     if back:
         t.SetMirrored(True)
@@ -172,8 +177,8 @@ if BUILD == "keys":
     # break-away radar piece
     for g in GAPS:
         cutout(g)
-    b.add_footprint("addon:MouseBite_4mm_Traces", BRIDGES[0], YNB, ref="MB1")
-    b.add_footprint("addon:MouseBite_4mm", BRIDGES[1], YNB, ref="MB2")
+    b.add_footprint("addon:MouseBite_4mm_Traces", PX0 - 1.0, BR_Y, rot=90, ref="MB1")
+    b.add_footprint("addon:MouseBite_4mm", TOP_BRIDGE, YNB, ref="MB2")
     b.add_footprint("addon:MouseBite_4mm", PX1 + 1.0, BR_Y, rot=90, ref="MB3")
     # radar turned 180 deg from Hi-Link's figure: header column on the left, all five pins on the piece
     b.place("U3", RX, RY, 180)
@@ -244,6 +249,23 @@ for i, ref in enumerate(r for r in ("R3", "R4", "R5", "R6", "R7") if r in b.comp
     b.place(ref, TX0 + 3.0 + 3.2 * i, 32.0, 90, side="B")
 b.place_row("J4", TX1 - 8.5, YB0 - 3.0)                      # SWIO 3V3 GND, pins running right
 label("SWIO 3V3 GND", TX1 - 6.0, YB0 - 5.2, size=0.8, back=True)
+
+
+# --- spare pads and test points: a row on the bar's back along its top edge, below the tab and
+# behind the enclosure's top border, clear of the keys' sockets and the encoders. Each pad is
+# named in vertical text below it ------------------------------------------------------------------
+def pad_label(s, x, ytop):
+    t = label(s, x, ytop, size=0.8, back=True, rot=90)
+    t.Move(pcbnew.VECTOR2I(0, pcbbuild.mm(x, ytop).y - t.GetBoundingBox().GetY()))
+
+
+YT = YB0 + 2.8
+b.place_row("J5", TX0 + 2.25, YT, side="B")                  # 2.54 mm pads for wires
+for i, s in enumerate(("IO40", "RXD", "TXD", "PA2", "PD7", "GND")):
+    pad_label(s, TX0 + 2.25 + 2.54 * i, YT + 1.6)
+for i, s in enumerate(("5V", "3V3", "GND", "SDA", "SCL", "R-TX", "R-RX", "R-OUT")):
+    b.place(f"TP{i + 1}", TX0 + 18.75 + 3.0 * i, YT, 0, side="B")
+    pad_label(s, TX0 + 18.75 + 3.0 * i, YT + 1.3)
 
 print("overlaps:", b.overlaps())
 print("unplaced:", b.unplaced())

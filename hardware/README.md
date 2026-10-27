@@ -26,7 +26,7 @@ Keys and encoders are never fitted together. With the encoders as far apart as t
 - **addon-keys:**
   - Three MX switches (HanElectricity CPG151101D13, clicky) in CPG151101S11-16 hot-swap sockets.
   - A warm-white 1206 LED in each switch's LED slot.
-  - The HLK-LD2402 radar on a break-away piece below key 1. Snap it off for a build without the radar.
+  - The HLK-LD2402 radar on a break-away piece centred below key 2. Snap it off for a build without the radar.
 - **addon-encoders:**
   - Two Bourns PEC11R-4215F-S0024 encoders with push switches, for 25 mm knobs.
   - The radar between them. Leave it off for a build without the radar; there is no piece to snap off.
@@ -35,6 +35,7 @@ Keys and encoders are never fitted together. With the encoders as far apart as t
   - A bare SHT40 on a U-tab at the bar's right end.
   - 3.3 V LDO.
   - 5 V in from solder pads or an optional USB-C. The board feeds 5 V to the panel through the 2x4 header, so the panel's own USB is never connected.
+  - Spare pins on solder pads (J5) and eight test points.
 
 ## Board (both)
 
@@ -58,7 +59,10 @@ Keys and encoders are never fitted together. With the encoders as far apart as t
   - **Pin 1:** the top of the column nearer the panel's centre.
   - **No 3.3 V:** H1 has none, so the board has its own regulator.
   - **IO1/IO2/IO40:** they reach H1 through 0 Ω links R25-R27 on the panel. The alternative links R21-R23 route them to the audio amplifier instead.
-- **J1:** the male header that plugs into H1. Its footprint numbers each pad like the H1 pin it mates with, so the schematic pin numbers are the panel's. SDA = IO1 (pin 7), SCL = IO2 (pin 5). IO40 and the ESP's UART0 (pins 3, 4, 6) are not used.
+- **J1:** the male header that plugs into H1. Its footprint numbers each pad like the H1 pin it mates with, so the schematic pin numbers are the panel's. SDA = IO1 (pin 7), SCL = IO2 (pin 5). IO40 and the ESP's UART0 (pins 3, 4, 6) go to the spare pads.
+- **Spare pads and test points (back, along the bar's top edge below the tab, behind the enclosure's top border):**
+  - **J5:** a row of 2.54 mm through-hole pads for wires or a header, labelled on the back. In order: IO40, RXD and TXD (the ESP's UART0, which carries its boot log), PA2 and PD7 (the co-processor's spare pins; PD7 doubles as NRST), and GND.
+  - **TP1-TP8:** 1.5 mm pads on the back, 3 mm apart: 5V, 3V3, GND, SDA, SCL and the radar's TX, RX and OUT (labelled R-TX, R-RX, R-OUT). The radar ones stay on the bar when the keys board's radar piece is snapped off.
 - **Tab (behind the panel):**
   - **Size and position:** 28.5 mm wide. Its left edge stays clear of the stock back cover's screw near the panel's lower-left corner (front view, about 37 mm left of and 29 mm below the centre).
   - **Front:** the 2x4 header only.
@@ -75,10 +79,10 @@ Keys and encoders are never fitted together. With the encoders as far apart as t
 
 - **Keys:** three, spread evenly inside the border, so they are 26.8 mm apart, centred 16 mm below the panel's bottom edge. Switches turned 90 degrees, so the socket pads on the back stay inside each switch's outline and the LED slot faces right.
 - **Radar (break-away piece):**
-  - **Position:** at the bar's left end, as close to the keys as the switches allow. Its top edge is 0.3 mm below key 1's switch body, so its top 2.7 mm sit behind keycap 1 and the gap around it. The bottom border with the radar shrinks to about 17.4 mm.
-  - **Effect of key 1:** key 1's switch stands about 11.6 mm tall right at the radar's top edge. That shades part of its upward view; the forward view isn't affected.
-  - **Break line:** steps up under the radar to just below key 1's socket, notching the bar's bottom edge. With the piece snapped off, the notch hides behind the 5 mm border.
-  - **Bridges:** three 4 mm bridges with 0.5 mm mouse-bite holes on the bar's edge line, two across the top gap and one across the gap on the piece's right side. They stay clear of key 1's hot-swap socket. The top-left bridge, by the radar's header column, has only its two end holes, and the radar's five tracks cross it between them: score the copper with a knife before snapping.
+  - **Position:** centred on the bar, under key 2, as close to the keys as the switches allow. Its top edge is 0.3 mm below key 2's switch body, so its top 2.7 mm sit behind keycap 2 and the gap around it. It can't come any closer: the switch body is in the way, and between the keys there is only 12.8 mm for the 20 mm module. The bottom border with the radar shrinks to about 17.4 mm.
+  - **Effect of key 2:** key 2's switch stands about 11.6 mm tall right at the radar's top edge. That shades part of its upward view; the forward view isn't affected.
+  - **Break line:** steps up under the radar to just below key 2's socket, notching the middle of the bar's bottom edge, with a 1 mm gap down each side of the piece. With the piece snapped off, the notch hides behind the 5 mm border.
+  - **Bridges:** three 4 mm bridges with 0.5 mm mouse-bite holes on the bar's edge line: one across each side gap and one across the top gap, right of key 2's hot-swap socket (there is no room for one on its left). The left bridge, by the radar's header column, has only its two end holes, and the radar's five tracks cross it between them: score the copper with a knife before snapping.
   - **Orientation:** turned 180 degrees from Hi-Link's figure 6-1, so all five header pins land on the piece; Hi-Link's manual says this orientation is equivalent. The module floats over the notch and the bridges on its 2.5 mm header.
 - **SHT40:** sits below the 1 mm gap between keycap 3 and the border.
 
@@ -99,7 +103,7 @@ Keys and encoders are never fitted together. With the encoders as far apart as t
 | PC6 / PC7 / PC0 | LED 1 / 2 / 3, PWM on TIM1 CH1-CH3 (remap 1) through 100 R | encoder 1 A / B, encoder 2 A |
 | PC3 / PA1 / PC4 | key 1 / 2 / 3 | encoder 1 push / encoder 2 B / encoder 2 push |
 | PD1 | SWIO (WCH-LinkE on J4) | same |
-| PD7, PA2 | spare | spare |
+| PD7, PA2 | spare, on J5 | same |
 
 The two boards use the same pins, so one firmware can serve both. It needs to know which board it's on.
 
@@ -121,6 +125,8 @@ The two boards use the same pins, so one firmware can serve both. It needs to kn
 | J2 | 5 V wire pads | | both |
 | J3, R1, R2 | USB-C 6P power-only, 4.7k CC pull-downs (5.1k +-20 %) | C456012, C17936 | both, optional |
 | J4 | programming pads: SWIO, 3V3, GND | | not fitted |
+| J5 | spare pads: IO40, RXD, TXD, PA2, PD7, GND | | not fitted |
+| TP1-TP8 | test points, bare 1.5 mm pads | | both, no part |
 | U5 | Sensirion SHT40-AD1B-R2 (I2C 0x44), DFN-4 1.5 x 1.5 mm | C2909890 | both |
 | C4 | 100 nF 1206, on the SHT40 tab | C24497 | both |
 
@@ -134,7 +140,7 @@ The two boards use the same pins, so one firmware can serve both. It needs to kn
 - **Radar header:** the radar's pins must come out of the non-antenna side.
 - **LED fit:** check that a 1206 LED fits in the switch's LED slot. From the datasheet the slot is about 9.4 x 2.7 mm.
 - **SHT40 soldering:** plan how to solder it: hot air or a hot plate, or have JLCPCB fit just that part.
-- **Alignment test:** print `addon-keys/mockup/addon-keys-alignment.stl` or `addon-encoders/mockup/addon-encoders-alignment.stl` (`tools/export_jig_stl.py`), hot-glue a 2x4 header into it and try it on a panel. Its pin holes are opened up for printing: 1.7 mm for the 2.54 mm headers (J1, J4, radar), 1.5 mm for the encoder pins, and the encoder tab slots by 0.2 mm.
+- **Alignment test:** print `addon-keys/mockup/addon-keys-alignment.stl` or `addon-encoders/mockup/addon-encoders-alignment.stl` (`tools/export_jig_stl.py`), hot-glue a 2x4 header into it and try it on a panel. Its pin holes are opened up for printing: 1.7 mm for the 2.54 mm headers (J1, J4, J5, radar), 1.5 mm for the encoder pins, and the encoder tab slots by 0.2 mm.
 - **Routing:** not done yet.
 - **Firmware:** still to write: the CH32V003 firmware and the ESPHome component that talks to it.
 
@@ -179,9 +185,9 @@ done
 **Don't run `kicad-cli sym upgrade` on `lib/addon.kicad_sym`:** kicad-cli 10.0.6 then crashes loading any schematic that embeds the upgraded radar symbol.
 
 **Expected DRC result:**
-- Unconnected items, because the boards aren't routed: 61 on the keys board, 60 on the encoders board.
-- `lib_footprint_issues` (17 and 11), which kicad-cli prints because there's no global footprint library table on this machine.
-- Nothing else. Rules in `addon-keys.kicad_dru` allow the keys board's intended overlaps: the LEDs inside the switches, and the radar over key 1's edge and the break line. The encoders board needs none.
+- Unconnected items, because the boards aren't routed: 75 on the keys board, 74 on the encoders board.
+- `lib_footprint_issues` (26 and 20), which kicad-cli prints because there's no global footprint library table on this machine.
+- Nothing else. Rules in `addon-keys.kicad_dru` allow the keys board's intended overlaps: the LEDs inside the switches, and the radar over key 2's edge and the break line. The encoders board needs none.
 
 ## Sources
 

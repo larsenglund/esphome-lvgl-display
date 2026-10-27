@@ -13,7 +13,7 @@
   (constraint courtyard_clearance (min -1mm))
   (condition "A.Library_Link == 'Connector_PinHeader_2.54mm:*' && B.Library_Link == 'Connector_PinHeader_2.54mm:*'"))
 
-# The radar sits right under key 1, so on its 2.5 mm header it reaches over key 1's lower
+# The radar sits right under key 2, so on its 2.5 mm header it reaches over key 2's lower
 # edge, the notch in the bar and the break-away bridges (their mouse-bite holes).
 (rule "radar floats over the break line"
   (constraint courtyard_clearance (min -25mm))

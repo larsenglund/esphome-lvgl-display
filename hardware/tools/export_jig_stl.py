@@ -6,7 +6,7 @@ Run with KiCad's Python from the repo root, once per board:
 
 Printed holes come out undersized, so on a temporary copy of the board the holes that
 pins have to go through are opened up (the KiCad board keeps the real sizes):
-- 2.54 mm header holes (J1 to the panel, J4, the radar U3): 1.7 mm
+- 2.54 mm header holes (J1 to the panel, J4, J5, the radar U3): 1.7 mm
 - encoder pins: 1.5 mm, encoder mounting-tab slots: +0.2 mm
 Writes hardware/addon-<board>/mockup/addon-<board>-alignment.stl.
 """
@@ -41,7 +41,7 @@ for fp in b.GetFootprints():
     for pad in fp.Pads():
         if pad.GetAttribute() != pcbnew.PAD_ATTRIB_PTH:
             continue
-        if ref in ("J1", "J4", "U3"):
+        if ref in ("J1", "J4", "J5", "U3"):
             drill(pad, HEADER_DRILL)
         elif ref.startswith("ENC"):
             size = pad.GetDrillSize()

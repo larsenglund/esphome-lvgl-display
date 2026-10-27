@@ -10,14 +10,16 @@ Add-on for the Guition ESP32-S3-4848S040 panel: plugs into the 2x4 header on
 its back (where the 230 V power/relay module would go) and hangs below the
 display. Two boards from one script:
 - keys: three MX switches in hot-swap sockets with a warm-white 1206 LED in
-  each, the radar on a break-away piece at the bar's left end
+  each, the radar on a break-away piece centred under key 2
 - encoders: two Bourns PEC11R encoders with push, as far apart as the
   enclosure allows, the radar between them
 Both: CH32V003A4M6 co-processor (I2C slave to the panel on GPIO1/GPIO2, UART
 to the HLK-LD2402 radar), a bare SHT40 on a U-tab at the bar's right end,
 3.3 V LDO, 5 V in from solder pads or an optional USB-C, and the panel powered
 through the header. The co-processor's pins do the same jobs on both boards
-(one firmware, told which board it is on). Hand-solder parts throughout (1206,
+(one firmware, told which board it is on). The header's unused pins (IO40,
+UART0) and the co-processor's spare PA2/PD7 come out on pads (J5); test points
+on 5 V, 3.3 V, GND, I2C and the radar's lines. Hand-solder parts throughout (1206,
 SOT-223, SOIC-16), apart from the SHT40 (1.5 mm DFN: hot air, or extended pads
 and patience).
 """
@@ -66,9 +68,11 @@ sch.text("Power: 5 V from the solder pads (J2) or the optional USB-C (J3), never
 # through 0R links R25-R27 on the panel (R21-R23 instead send them to the audio amplifier).
 sch.add("Connector_Generic:Conn_02x04_Odd_Even", "J1", "GUITION H1", (45, 60),
         fp="addon:Guition_H1_2x04_P2.54mm_Mating",
-        pins={"1": "GND", "2": "GND", "5": "SCL", "7": "SDA", "8": "+5V"}, nc=["3", "4", "6"],
+        pins={"1": "GND", "2": "GND", "3": "IO40", "4": "U0RXD", "5": "SCL", "6": "U0TXD", "7": "SDA",
+              "8": "+5V"},
         fields={"Note": "plugs into the panel's H1; SDA = IO1 (pin 7), SCL = IO2 (pin 5); "
-                        "IO40 and the ESP's UART0 (pins 4, 6) unused. Needs R25-R27 fitted on the panel."})
+                        "IO40 and the ESP's UART0 (pins 3, 4, 6) go to the spare pads J5. "
+                        "Needs R25-R27 fitted on the panel."})
 sch.add("Connector_Generic:Conn_01x02", "J2", "5V IN (+ -)", (45, 90),
         fp="Connector_Wire:SolderWire-0.5sqmm_1x02_P4.6mm_D0.9mm_OD2.1mm",
         pins={"1": "+5V", "2": "GND"}, fields={"Note": "wire pads on the wall side; tie the wires down for strain relief"})
@@ -100,9 +104,8 @@ sch.add("MCU_WCH_RiscV:CH32V003AxMx", "U2", "CH32V003A4M6", (225, 90),
         pins={"VDD": "+3V3", "VSS": "GND",
               "PC1": "SDA", "PC2": "SCL",
               "PD5": "RADAR_RX", "PD6": "RADAR_TX", "PD4": "RADAR_OUT",
-              "PD1": "SWIO", **IO},
-        nc=["PD7", "PA2"],
-        fields={"Note": "PD5 = USART1 TX, PD6 = RX; PC1/PC2 = I2C1; PD7 (NRST) and PA2 spare"})
+              "PD1": "SWIO", "PD7": "PD7", "PA2": "PA2", **IO},
+        fields={"Note": "PD5 = USART1 TX, PD6 = RX; PC1/PC2 = I2C1; PD7 (NRST) and PA2 spare, on J5"})
 C("C3", "100n", "C24497", "+3V3", "GND", (255, 70), fields={"Note": "at U2 VDD"})
 R("R3", "4.7k", "C17936", "+3V3", "SDA", (170, 110), fields={"Note": "I2C pull-up"})
 R("R4", "4.7k", "C17936", "+3V3", "SCL", (180, 110), fields={"Note": "I2C pull-up"})
@@ -114,8 +117,19 @@ sch.add("Sensor_Humidity:SHT4x", "U5", "SHT40-AD1B-R2", (285, 130),
         fields={"Note": "I2C 0x44; at the free end of the U-tab at the bar's right end"})
 C("C4", "100n", "C24497", "+3V3", "GND", (265, 130), fields={"Note": "on the SHT40's U-tab"})
 
+# --- spare pins and test points ------------------------------------------------------------------
+sch.text("Spare pins on J5 (2.54 mm pads for wires): the panel's IO40 and UART0 from H1, the\n"
+         "co-processor's PA2 and PD7 (NRST), and GND. Test points TP1-TP8 (1.5 mm pads on the back):\n"
+         "5 V, 3.3 V, GND, I2C and the radar's UART and OUT.", (320, 160), size=1.5)
+sch.add("Connector_Generic:Conn_01x06", "J5", "SPARE", (335, 195), fp=HDR.format(6), dnp=True,
+        pins={"1": "IO40", "2": "U0RXD", "3": "U0TXD", "4": "PA2", "5": "PD7", "6": "GND"},
+        fields={"Note": "spare pads: IO40 and UART0 of the panel's ESP (its boot log), PA2 and PD7 of U2"})
+for i, net in enumerate(("+5V", "+3V3", "GND", "SDA", "SCL", "RADAR_TX", "RADAR_RX", "RADAR_OUT")):
+    sch.add("Connector:TestPoint", f"TP{i + 1}", net, (320 + 11 * i, 240),
+            fp="TestPoint:TestPoint_Pad_D1.5mm", pins={"1": net})
+
 # --- radar ----------------------------------------------------------------------------------------
-where = ("on a break-away piece at the bar's left end, under key 1 (snap it off to build\n"
+where = ("on a break-away piece centred under key 2 (snap it off to build\n"
          "without the radar)." if BUILD == "keys" else
          "between the two encoders (leave it off to build without the radar).")
 sch.text("Radar: HLK-LD2402 soldered on its own 2.5 mm header, antenna side out, " + where + "\n"
