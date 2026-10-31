@@ -386,6 +386,40 @@ class Board:
         self.board.Add(z)
         return z
 
+    def no_pour(self, layer, rect):
+        """Rule area on `layer` over rect (board mm) that pours stay out of;
+        tracks, vias and pads stay allowed."""
+        z = self.no_tracks(layer, rect)
+        z.SetDoNotAllowTracks(False)
+        z.SetDoNotAllowZoneFills(True)
+        return z
+
+    def track(self, net, layer, pts, width):
+        """Hand-routed track through pts (board mm), locked so the autorouter
+        keeps it."""
+        for a, c in zip(pts, pts[1:]):
+            t = pcbnew.PCB_TRACK(self.board)
+            t.SetStart(mm(*a))
+            t.SetEnd(mm(*c))
+            t.SetWidth(pcbnew.FromMM(width))
+            t.SetLayer(layer)
+            t.SetNet(self.nets.get(net) or self.nets["/" + net])
+            t.SetLocked(True)
+            self.board.Add(t)
+
+    def via(self, net, x, y, d=0.6, drill=0.3):
+        """Hand-placed through via, locked."""
+        v = pcbnew.PCB_VIA(self.board)
+        v.SetPosition(mm(x, y))
+        v.SetWidth(pcbnew.FromMM(d))
+        v.SetDrill(pcbnew.FromMM(drill))
+        v.SetViaType(pcbnew.VIATYPE_THROUGH)
+        v.SetLayerPair(pcbnew.F_Cu, pcbnew.B_Cu)
+        v.SetNet(self.nets.get(net) or self.nets["/" + net])
+        v.SetLocked(True)
+        self.board.Add(v)
+        return v
+
     def unplaced(self):
         return sorted(set(self.comps) - set(self.fps), key=lambda r: (r.rstrip("0123456789"), len(r), r))
 

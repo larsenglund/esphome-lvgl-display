@@ -1,4 +1,4 @@
-# Add-on boards for the Guition ESP32-S3-4848S040 (rev A, placement only)
+# Add-on boards for the Guition ESP32-S3-4848S040 (rev A)
 
 Two KiCad 10 projects for a board that plugs into the 2x4 header on the back of the panel (where the 230 V power/relay module would go) and hangs below the display:
 - `addon-keys`: three keys.
@@ -9,7 +9,7 @@ They share everything except the bar below the display. Every KiCad file is gene
 ![keys board](addon-keys/renders/addon-keys-top.png)
 ![encoders board](addon-encoders/renders/addon-encoders-top.png)
 
-**Status:** schematics and placement done for both boards, DRC clean apart from the unrouted connections. Not routed yet.
+**Status:** schematics, placement and routing done for both boards, DRC clean. Not ordered or built yet, so nothing is tested on a real board.
 - **From Guition's own files:** the header pinout and the panel size.
 - **Measured on a panel:** the header's position. The measurement agrees with a community replacement back cover to about 0.1 mm.
 - **Placeholder:** the tab's outline.
@@ -40,15 +40,15 @@ Keys and encoders are never fitted together. With the encoders as far apart as t
 ## Board (both)
 
 - **Enclosure (front), as planned:**
-  - **Width:** 85.6 mm: the bar plus 1.1 mm walls, which leaves 0.9 mm to each side of the panel.
-  - **Border:** 5 mm all round, then a 1 mm gap around each keycap or knob.
-  - **Height:** 32 mm for the keys and 37 mm for the encoders, so the border and gap go all round a keycap or a knob. The keys board's enclosure grows to about 44.4 mm with the radar.
+  - **Width:** 82.9 mm, 2 mm a side narrower than the wall mount. The keys and encoders are still spaced for an 85.6 mm enclosure, so the side borders are 3.65 mm.
+  - **Border:** 5 mm at the top and bottom, then a 1 mm gap around each keycap or knob.
+  - **Height:** 32 mm for the keys and 37 mm for the encoders. With the radar, the keys board's enclosure has a radar section below that: 2 mm a side narrower again and half as tall (16 mm), 48 mm in all.
 - **Bar (front, facing the room):**
-  - **Width:** 83.4 mm. Test-fitted, it sat flush with the panel's left edge and 0.9 mm short of its right edge, so it is trimmed 0.9 mm on the left to centre it, plus 1.1 mm on each side for the enclosure walls (2.0 mm left, 1.1 mm right in all).
+  - **Width:** 79.4 mm, centred on the panel. Test-fitted, it sat flush with the panel's left edge and 0.9 mm short of its right edge. So it was trimmed 0.9 mm on the left to centre it, plus 1.1 mm on each side for the walls. It then lost 2 mm more on each side for the narrower enclosure, which leaves 1.75 mm beside it for the cover's walls and clearance.
   - **Height:** 30.9 mm on the keys board and 35.9 mm on the encoders board, ending 1.1 mm above the 5 mm bottom border.
 - **SHT40 U-tab:**
   - **Where:** at the bar's right end, beside key 3 or encoder 2.
-  - **Shape:** a 1 mm U-shaped slot cuts out a tongue 21 mm long: 5 mm wide on the keys board, 6.6 mm on the encoders board. It hangs from the top and is free at its lower end, near the bottom edge where the enclosure's vents should go.
+  - **Shape:** a 1 mm U-shaped slot cuts out a tongue 21 mm long: 3.1 mm wide on the keys board, 4.65 mm on the encoders board. It hangs from the top and is free at its lower end, near the bottom edge where the enclosure's vents should go.
   - **Parts:** the bare SHT40 near the free end, and C4 (100 nF) on the tongue.
   - **Distance from heat:** far from the regulator, the chip and the radar. On the keys board, key 3's LED, a few milliwatts, is the nearest heat source.
 - **Panel:** 86.5 x 86.5 x 13.6 mm, from Guition's dimension drawing.
@@ -59,12 +59,15 @@ Keys and encoders are never fitted together. With the encoders as far apart as t
   - **Pin 1:** the top of the column nearer the panel's centre.
   - **No 3.3 V:** H1 has none, so the board has its own regulator.
   - **IO1/IO2/IO40:** they reach H1 through 0 Ω links R25-R27 on the panel. The alternative links R21-R23 route them to the audio amplifier instead.
+- **H1 height:** the socket stands about 3 mm out of the panel's back, so the board's front sits 3.2 mm behind the panel's back (the wall mount allows for it).
 - **J1:** the male header that plugs into H1. Its footprint numbers each pad like the H1 pin it mates with, so the schematic pin numbers are the panel's. SDA = IO1 (pin 7), SCL = IO2 (pin 5). IO40 and the ESP's UART0 (pins 3, 4, 6) go to the spare pads.
 - **Spare pads and test points (back, along the bar's top edge below the tab, behind the enclosure's top border):**
   - **J5:** a row of 2.54 mm through-hole pads for wires or a header, labelled on the back. In order: IO40, RXD and TXD (the ESP's UART0, which carries its boot log), PA2 and PD7 (the co-processor's spare pins; PD7 doubles as NRST), and GND.
-  - **TP1-TP8:** 1.5 mm pads on the back, 3 mm apart: 5V, 3V3, GND, SDA, SCL and the radar's TX, RX and OUT (labelled R-TX, R-RX, R-OUT). The radar ones stay on the bar when the keys board's radar piece is snapped off.
+  - **TP1-TP8:** 1.5 mm pads on the back, 3 mm apart: 5V, 3V3, GND, SDA, SCL and the radar's TX, RX and OUT (labelled R-TX, R-RX, R-OUT). On the keys board the radar's three are in the order R-OUT, R-TX, R-RX, the order their tracks arrive in. They stay on the bar when the keys board's radar piece is snapped off.
+- **Alignment holes MH1 and MH2:** 2.2 mm, no copper, 37 mm left and right of the centre and 4.5 mm below the panel's bottom edge, for the wall mount's 2 mm pins.
 - **Tab (behind the panel):**
   - **Size and position:** 28.5 mm wide. Its left edge stays clear of the stock back cover's screw near the panel's lower-left corner (front view, about 37 mm left of and 29 mm below the centre).
+  - **Hook notch:** its lower-left corner is cut away, 3.6 mm across and 5.75 mm up from the panel's bottom edge, for the wall mount's lower-left clip hook (30.85 mm left of and 38.5 mm below the panel's centre). The resistor row starts right of it.
   - **Front:** the 2x4 header only.
   - **Back (wall side, inside the wall box):** the USB-C (opening at the tab's right edge), the 5 V wire pads, the LDO, the co-processor, the resistors and the programming pads. Keeping the heat sources here keeps them away from the SHT40.
 - **Hand soldering:**
@@ -75,6 +78,16 @@ Keys and encoders are never fitted together. With the encoders as far apart as t
   - The hot-swap socket pads are 2.5 x 2.55 mm.
   - The exception is the bare SHT40, a 1.5 mm DFN with its pads underneath. Its footprint has pads 0.5 mm longer than standard, so it can be tinned and reflowed from outside, but hot air or a hot plate is the reliable way. A small breakout could fit on the tongue instead if you prefer.
 
+## Routing (both)
+
+2 layers, 1 oz. `addon/route_addon.py` runs all of it.
+
+- **Track widths:** `+5V` 0.5 mm, since it feeds the panel too. `+3V3` and GND 0.3 mm (about 100 mA). Signals 0.25 mm. Clearance 0.2 mm.
+- **GND:** a pour on each side, joined by stitching vias about 7 mm apart. Every surface-mount GND pad has its own via, and J4's GND pad is tied to TP3 on the back, so signal tracks can't fence a pad off from the pours. Freerouting doesn't wire GND.
+- **Vias:** tented on both sides. None inside pads, as those are soldered by hand.
+- **SHT40 tongue:** routed by hand, with its own 0.25 mm tracks up the back and no pour on either side, so little heat reaches the sensor along the copper.
+- **Everything else:** Freerouting, best of several runs, then a small A* router for anything left open. It runs on both sides of the board, including under the switches and encoders; the copper there is covered by solder mask.
+
 ## Keys board
 
 - **Keys:** three, spread evenly inside the border, so they are 26.8 mm apart, centred 16 mm below the panel's bottom edge. Switches turned 90 degrees, so the socket pads on the back stay inside each switch's outline and the LED slot faces right.
@@ -82,7 +95,8 @@ Keys and encoders are never fitted together. With the encoders as far apart as t
   - **Position:** centred on the bar, under key 2, as close to the keys as the switches allow. Its top edge is 0.3 mm below key 2's switch body, so its top 2.7 mm sit behind keycap 2 and the gap around it. It can't come any closer: the switch body is in the way, and between the keys there is only 12.8 mm for the 20 mm module. The bottom border with the radar shrinks to about 17.4 mm.
   - **Effect of key 2:** key 2's switch stands about 11.6 mm tall right at the radar's top edge. That shades part of its upward view; the forward view isn't affected.
   - **Break line:** steps up under the radar to just below key 2's socket, notching the middle of the bar's bottom edge, with a 1 mm gap down each side of the piece. With the piece snapped off, the notch hides behind the 5 mm border.
-  - **Bridges:** three 4 mm bridges with 0.5 mm mouse-bite holes on the bar's edge line: one across each side gap and one across the top gap, right of key 2's hot-swap socket (there is no room for one on its left). The left bridge, by the radar's header column, has only its two end holes, and the radar's five tracks cross it between them: score the copper with a knife before snapping.
+  - **Bridges:** three 4 mm bridges with 0.5 mm mouse-bite holes on the bar's edge line: one across each side gap and one across the top gap, right of key 2's hot-swap socket (there is no room for one on its left). The left bridge, by the radar's header column, has only its two end holes, and the radar's five tracks cross it between them, straight and all on the back: score the back with a knife before snapping, and clean up the track ends so they can't short. The pours stay off all three bridges.
+  - **Radar tracks:** routed by hand from the header, across the bridge and up the back of the bar left of key 2, then along above the key sockets to the test points. The radar's GND drops to the front pour through a via just left of the bridge.
   - **Orientation:** turned 180 degrees from Hi-Link's figure 6-1, so all five header pins land on the piece; Hi-Link's manual says this orientation is equivalent. The module floats over the notch and the bridges on its 2.5 mm header.
 - **SHT40:** sits below the 1 mm gap between keycap 3 and the border.
 
@@ -134,14 +148,14 @@ The two boards use the same pins, so one firmware can serve both. It needs to kn
 
 - **Header position:** worth a careful second measurement before ordering, since a board-to-board connector leaves no slack. It is set by `HDR_DX` and `HDR_DY` in `place_addon.py`.
 - **Panel links:** check that R25-R27 (0 Ω) are fitted on your panels, so IO1 and IO2 actually reach H1. That is likely on relay units and should be checked on ones bought without relays.
-- **Pin length:** measure how far H1 sits below the back cover, to choose J1's pin length.
+- **Pin length:** H1 stands about 3 mm out of the back cover and the board's front is 3.2 mm behind it, so J1's pins must reach about 3.2 mm plus H1's contact depth past the board's front. A standard header with its plastic spacer on the front won't fit the gap: use long pins with the spacer on the back, or slide the spacer off after soldering.
 - **Mechanics:** check how the board gets past the frame rim, and the outline.
 - **Radar pinout:** check the module's print against 1 VCC, 2 OUT, 3 GND, 4 TX, 5 RX (Hi-Link manual p. 7).
 - **Radar header:** the radar's pins must come out of the non-antenna side.
 - **LED fit:** check that a 1206 LED fits in the switch's LED slot. From the datasheet the slot is about 9.4 x 2.7 mm.
 - **SHT40 soldering:** plan how to solder it: hot air or a hot plate, or have JLCPCB fit just that part.
-- **Alignment test:** print `addon-keys/mockup/addon-keys-alignment.stl` or `addon-encoders/mockup/addon-encoders-alignment.stl` (`tools/export_jig_stl.py`), hot-glue a 2x4 header into it and try it on a panel. Its pin holes are opened up for printing: 1.7 mm for the 2.54 mm headers (J1, J4, J5, radar), 1.5 mm for the encoder pins, and the encoder tab slots by 0.2 mm.
-- **Routing:** not done yet.
+- **Alignment test:** print `addon-keys/mockup/addon-keys-alignment.stl` or `addon-encoders/mockup/addon-encoders-alignment.stl` (`tools/export_jig_stl.py`), hot-glue a 2x4 header into it and try it on a panel. Its pin holes are opened up for printing: 1.7 mm for the 2.54 mm headers (J1, J4, J5, radar), 1.5 mm for the encoder pins, the encoder tab slots by 0.2 mm, and 2.9 mm for the wall mount's 2.0 mm alignment pins (MH1, MH2; 2.2 mm on the board).
+- **Order files:** still to export: Gerbers and drill files, plus the BOM and placement files if JLCPCB is to fit any parts.
 - **Firmware:** still to write: the CH32V003 firmware and the ESPHome component that talks to it.
 
 ## Files
@@ -149,18 +163,23 @@ The two boards use the same pins, so one firmware can serve both. It needs to kn
 | File | What |
 |---|---|
 | `addon/gen_addon.py` | Schematic for either board (`keys` or `encoders`): parts, values, LCSC numbers, nets |
-| `addon/place_addon.py` | Board for either board: outline (with the U-tab, and the keys board's break-away piece), placement, labels, DRC rules, enclosure overlay |
+| `addon/place_addon.py` | Board for either board: outline (with the U-tab, and the keys board's break-away piece), placement, labels, DRC rules, enclosure overlay, pours, the GND vias and the tracks routed by hand |
+| `addon/route_addon.py` | Routes either board from scratch with the tools below |
 | `addon/sym-lib-table`, `addon/fp-lib-table` | Library tables, copied into each project by `gen_addon.py` |
 | `addon-keys/`, `addon-encoders/` | Generated KiCad projects |
 | `addon-*/renders/` | 3D renders (top, bottom, angled) and the enclosure overlay |
 | `lib/addon.*` | Symbols, footprints and STEP models |
 | `tools/addon_lib.py` | Makes the radar symbol and footprint, the hot-swap MX, PEC11R, SHT40 and hand-solder SOIC-16 footprints, the mouse bites, and the USB-C footprint |
 | `tools/export_jig_stl.py` | The fit-test STL, with the pin holes opened up for printing |
+| `tools/stitch.py` | Stitching vias between the GND pours, after routing |
+| `tools/autoroute.py`, `tools/finish_route.py`, `tools/fanout.py` | Freerouting, the A* router for what it leaves open, and a via for each SMD GND pad, from fablights. These know these boards aren't rectangles |
 | `tools/` | schgen, pcbbuild, netcheck, import_lcsc, render3d, from the LED controller project |
 
 ## Rebuild
 
-Run from the repo root. `KPY` is KiCad's own Python, used for everything that imports pcbnew. `VENV` is the fablights venv, which has easyeda2kicad.
+Run from the repo root. `KPY` is KiCad's own Python, used for everything that imports pcbnew. `VENV` is the fablights venv, which has easyeda2kicad. Routing needs `freerouting-*.jar` and a Java 25 runtime (not committed) in `hardware/tools/ext/` or in a fablights checkout next to this repo.
+
+**`place_addon.py` starts the board over, routing included.** After changing anything on the board, route it again. Freerouting varies from run to run, so the tracks will differ each time: look through the result before ordering.
 
 ```bash
 KPY="/c/Program Files/KiCad/10.0/bin/python.exe"
@@ -175,7 +194,7 @@ for B in keys encoders; do
   python hardware/addon/gen_addon.py $B                                    # schematic
   "$CLI" sch upgrade --force $P.kicad_sch
   python hardware/tools/netcheck.py $P.kicad_sch                           # ERC + single-pin nets
-  "$KPY" hardware/addon/place_addon.py $B                                  # board and placement
+  python hardware/addon/route_addon.py $B                                  # board, placement and routing (a few minutes)
   "$CLI" pcb drc --schematic-parity --severity-all -o drc-$B.rpt $P.kicad_pcb
   "$KPY" hardware/tools/render3d.py addon-$B                               # renders/
   "$KPY" hardware/tools/export_jig_stl.py $B                               # fit-test STL (git-ignored)
@@ -185,7 +204,6 @@ done
 **Don't run `kicad-cli sym upgrade` on `lib/addon.kicad_sym`:** kicad-cli 10.0.6 then crashes loading any schematic that embeds the upgraded radar symbol.
 
 **Expected DRC result:**
-- Unconnected items, because the boards aren't routed: 75 on the keys board, 74 on the encoders board.
 - `lib_footprint_issues` (26 and 20), which kicad-cli prints because there's no global footprint library table on this machine.
 - Nothing else. Rules in `addon-keys.kicad_dru` allow the keys board's intended overlaps: the LEDs inside the switches, and the radar over key 2's edge and the break line. The encoders board needs none.
 

@@ -7,6 +7,9 @@ _autosave-*
 ~*.lck
 _render_*.kicad_pcb
 _render_*.kicad_pro
+*.dsn
+*.ses
+*.route.log
 *.net
 __pycache__/
 */mockup/*.stl

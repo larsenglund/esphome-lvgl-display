@@ -1,4 +1,6 @@
-"""Place an add-on board: addon-keys or addon-encoders. Placement only, not routed yet.
+"""Place an add-on board: addon-keys or addon-encoders, with its pours and the few
+tracks that are routed by hand (locked). The rest is routed by route_addon.py, which
+runs this first; rerunning this script starts the board over, routing included.
 
 Run with KiCad's Python from the repo root, once per board (after gen_addon.py):
     "C:/Program Files/KiCad/10.0/bin/python.exe" hardware/addon/place_addon.py keys
@@ -8,13 +10,15 @@ Front view, x right, y down; the front faces the room (keys, encoders, radar,
 LEDs, SHT40) and, on the tab, the panel's back (the 2x4 header only). The tab
 behind the panel carries the electronics on its back (wall) side, inside the
 wall box and away from the SHT40.
-- Enclosure (front): 85.6 mm wide (the bar plus 1.1 mm walls), a 5 mm border,
-  then 1 mm around each 20 x 20 mm keycap or 25 mm knob: 32 mm tall for the
-  keys, 37 mm for the encoders. Three keys spread evenly inside the border:
-  26.8 mm apart, centred 16 mm below the panel's bottom edge.
-- Bar: 83.4 mm wide, centred on the panel as fitted (it sat flush with the
-  panel's left edge and 0.9 mm short of its right), 1.1 mm inside the
-  enclosure all round. It ends 1.1 mm above a 5 mm bottom border.
+- Enclosure (front): spaced for 85.6 mm wide, a 5 mm border, then 1 mm around
+  each 20 x 20 mm keycap or 25 mm knob: 32 mm tall for the keys, 37 mm for the
+  encoders. Three keys spread evenly inside that border: 26.8 mm apart, centred
+  16 mm below the panel's bottom edge. Then narrowed to 82.9 mm with the keys
+  left in place; with the radar a section below it, 2 mm a side narrower and
+  half as tall.
+- Bar: 79.4 mm wide, centred on the panel as fitted (it sat flush with the
+  panel's left edge and 0.9 mm short of its right), 1.75 mm inside the
+  enclosure at the sides. It ends 1.1 mm above a 5 mm bottom border.
 - keys: switches turned 90 deg counter-clockwise, so the socket pads stay
   inside the switch outline and the LED slot faces right. The radar is on a
   break-away piece centred under key 2, its top edge 0.3 mm below key 2's
@@ -39,7 +43,9 @@ wall box and away from the SHT40.
   2.54 mm) was measured: centre 23.7 mm left of and 16.2 mm below the
   panel's centre, seen from the front (HDR_*).
 - The tab stays clear of the stock back cover's screw near the panel's
-  lower-left corner (front view, about 37 mm left of and 29 mm below the centre).
+  lower-left corner (front view, about 37 mm left of and 29 mm below the centre),
+  and its lower-left corner is cut away for the wall mount's lower-left clip hook.
+- Two 2.2 mm holes near the bar's ends for the wall mount's alignment pins.
 - Still a placeholder: the tab's outline.
 """
 import pathlib
@@ -49,7 +55,8 @@ ROOT = pathlib.Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "hardware" / "tools"))
 import pcbnew  # noqa: E402
 import pcbbuild  # noqa: E402
-from pcbbuild import Board  # noqa: E402
+from fanout import fanout  # noqa: E402
+from pcbbuild import Board, clearance_lookup  # noqa: E402
 
 BUILD = sys.argv[1] if len(sys.argv) > 1 else ""
 if BUILD not in ("keys", "encoders"):
@@ -71,19 +78,23 @@ TAB_W = 28.5         # tab width (room for the electronics on its back)
 
 CX = W / 2                      # panel centre line (the tab and header are placed from it)
 # The bar: test-fitted, it sat flush with the panel's left edge and 0.9 mm short of its
-# right edge, so it comes in 0.9 mm on the left to centre it, plus 1.1 mm on both sides
-# for the enclosure walls.
-BL, BR = 2.0, W - 1.1           # bar's left and right edges (board mm)
+# right edge, so it came in 0.9 mm on the left to centre it, plus 1.1 mm on both sides for
+# the enclosure walls: an 85.6 mm enclosure (E_FULL), which still spaces the keys and encoders.
+# The enclosure was then narrowed by 2 mm a side with the keys and encoders left where they
+# were, so the bar lost 2 mm more on each side, and the walls beside it are 1.75 mm (SIDE: the
+# wall mount's cover, 1.45 mm of wall and 0.3 mm of clearance).
+BL, BR = 4.0, W - 3.1           # bar's left and right edges (board mm)
 EC = (BL + BR) / 2              # bar / enclosure centre line
-WALL, BORDER, GAP, CAP = 1.1, 5.0, 1.0, 20.0
-E_INNER = (BR - BL) + 2 * WALL - 2 * BORDER          # 75.6: inside the enclosure's border
-KP = (E_INNER - 2 * GAP - CAP) / 2                   # 26.8: key pitch, outer caps 1 mm from the border
+WALL, SIDE, BORDER, GAP, CAP = 1.1, 1.75, 5.0, 1.0, 20.0   # WALL: below the bar
+E_FULL = 85.6
+E_INNER = E_FULL - 2 * BORDER                        # 75.6: inside the full-width enclosure's border
+KP = (E_INNER - 2 * GAP - CAP) / 2                   # 26.8: key pitch, outer caps 1 mm from that border
 YB0 = HDR_Y + W / 2 - HDR_DY    # bar top = panel bottom edge = enclosure top edge
 YK = YB0 + BORDER + GAP + CAP / 2                    # key row
 KNOB = 25.0
 YE = YB0 + BORDER + GAP + KNOB / 2                   # encoder row, 2.5 mm below the key row
-EX0, EX1 = BL - WALL, BR + WALL # enclosure's outer edges
-ENC_X = [EX0 + BORDER + GAP + KNOB / 2, EX1 - BORDER - GAP - KNOB / 2]   # 48.6 mm apart
+EX0, EX1 = BL - SIDE, BR + SIDE # enclosure's outer edges (82.9 mm)
+ENC_X = [EC - E_INNER / 2 + GAP + KNOB / 2, EC + E_INNER / 2 - GAP - KNOB / 2]   # 48.6 mm apart
 FACE = CAP if BUILD == "keys" else KNOB              # keycap or knob, with 1 mm gaps and the border round it
 YBR = YB0 + BORDER + 2 * GAP + FACE + BORDER - WALL  # bar bottom: 1.1 mm above a 5 mm border
 # break-away radar piece centred under key 2, as close to it as the switch allows: the radar's
@@ -103,14 +114,20 @@ PX0, PX1 = RX - 10.5, RX + 10.5 # piece left and right edges, 1 mm gaps beside t
 TOP_BRIDGE = RX + 6.7           # x centre, top gap
 BR_Y = YPT + 2.45               # y centre, side gaps
 TX0, TX1 = CX + TAB_X0, CX + TAB_X0 + TAB_W
+# The wall mount's lower-left clip hook rises through the tab's lower-left corner (front view,
+# 30.85 mm left of and 38.5 mm below the panel's centre, with the bar centred on the panel), so
+# the corner is cut away with 0.5 mm clearance beside the hook and 1 mm above it.
+NX = EC - 30.85 + 0.5           # notch's right edge
+NY = YB0 - W / 2 + 38.5 - 1.0   # notch's top edge
+TAB_FOOT = [(NX, YB0), (NX, NY), (TX0, NY)]
 
 if BUILD == "keys":
     OUTLINE = [(TX0, 0), (TX1, 0), (TX1, YB0), (BR, YB0), (BR, YBR), (PX1 + 1.0, YBR), (PX1 + 1.0, BR_Y + 2),
                (PX1, BR_Y + 2), (PX1, YPB), (PX0, YPB), (PX0, BR_Y + 2), (PX0 - 1.0, BR_Y + 2),
-               (PX0 - 1.0, YBR), (BL, YBR), (BL, YB0), (TX0, YB0)]
+               (PX0 - 1.0, YBR), (BL, YBR), (BL, YB0)] + TAB_FOOT
     BOTTOM = YPB
 else:
-    OUTLINE = [(TX0, 0), (TX1, 0), (TX1, YB0), (BR, YB0), (BR, YBR), (BL, YBR), (BL, YB0), (TX0, YB0)]
+    OUTLINE = [(TX0, 0), (TX1, 0), (TX1, YB0), (BR, YB0), (BR, YBR), (BL, YBR), (BL, YB0)] + TAB_FOOT
     BOTTOM = YBR
 # the gaps between the bridges: two closed L-shaped cut-outs, round the piece's top corners
 GAPS = [[(PX0 - 1.0, YNB), (TOP_BRIDGE - 2, YNB), (TOP_BRIDGE - 2, YPT), (PX0, YPT), (PX0, BR_Y - 2),
@@ -129,6 +146,13 @@ USLOT = [(UL, UT), (UL + 1.0, UT), (UL + 1.0, UB - 1.0), (UR - 1.0, UB - 1.0), (
          (UR, UT), (UR, UB), (UL, UB)]
 TONGUE_X = (UL + 1.0 + UR - 1.0) / 2
 
+pcbbuild.DRU += """
+# Every SMD GND pad has its own via and stub: one spoke is enough, and easier to hand-solder
+# (the USB-C's pads by the board's edge get no more than that).
+(rule "pads with a via: one thermal spoke is enough"
+  (constraint min_resolved_spokes 1)
+  (condition "A.Type == 'Pad'"))
+"""
 if BUILD == "keys":
     pcbbuild.DRU += """
 # The radar sits right under key 2, so on its 2.5 mm header it reaches over key 2's lower
@@ -198,7 +222,7 @@ b.place("C4", TONGUE_X, UB - 9.5, 90)
 label("SHT40", TONGUE_X, UB + 1.0, size=0.8)
 
 # --- enclosure, for reference only (User.Drawings): its outline (and, for the keys, the
-# outline with the radar's border), the 5 mm border, the 20 mm keycaps or the 25 mm knobs -----------
+# radar's part below it), the 5 mm border, the 20 mm keycaps or the 25 mm knobs -----------
 def dwg(shape, *args):
     s = pcbnew.PCB_SHAPE(b.board)
     if shape == "rect":
@@ -217,9 +241,10 @@ def dwg(shape, *args):
 
 
 dwg("rect", EX0, YB0, EX1, YBR + WALL)                                     # 5 mm bottom border
-dwg("rect", EX0 + BORDER, YB0 + BORDER, EX1 - BORDER, YBR + WALL - BORDER)  # inside the border
+dwg("rect", EC - E_INNER / 2, YB0 + BORDER, EC + E_INNER / 2, YBR + WALL - BORDER)  # inside the border
 if BUILD == "keys":
-    dwg("rect", EX0, YB0, EX1, YPB + WALL)                                 # border with the radar
+    # the radar's part below it: 2 mm narrower a side and half as tall
+    dwg("rect", EX0 + 2.0, YBR + WALL, EX1 - 2.0, YBR + WALL + (YBR + WALL - YB0) / 2)
     for dx in (-KP, 0.0, KP):
         dwg("rect", EC + dx - CAP / 2, YK - CAP / 2, EC + dx + CAP / 2, YK + CAP / 2)
 else:
@@ -244,11 +269,12 @@ b.place("C1", TX0 + 6.0, 26.3, 0, side="B")
 b.place("U2", TX1 - 7.0, 22.0, 0, side="B")
 b.place("C3", TX1 - 7.0, 15.2, 0, side="B")
 b.place("C2", TX0 + 13.0, 22.0, 90, side="B")                # 3.3 V output
-# bottom: a row of resistors (I2C pull-ups, LED resistors) and the programming pads
+# bottom: a row of resistors (I2C pull-ups, LED resistors), right of the hook's notch, and the
+# programming pads
 for i, ref in enumerate(r for r in ("R3", "R4", "R5", "R6", "R7") if r in b.comps):
-    b.place(ref, TX0 + 3.0 + 3.2 * i, 32.0, 90, side="B")
-b.place_row("J4", TX1 - 8.5, YB0 - 3.0)                      # SWIO 3V3 GND, pins running right
-label("SWIO 3V3 GND", TX1 - 6.0, YB0 - 5.2, size=0.8, back=True)
+    b.place(ref, NX + 1.5 + 3.0 * i, 32.0, 90, side="B")
+b.place_row("J4", TX1 - 7.5, YB0 - 3.0)                      # SWIO 3V3 GND, pins running right
+label("SWIO 3V3 GND", TX1 - 5.0, YB0 - 5.2, size=0.8, back=True)
 
 
 # --- spare pads and test points: a row on the bar's back along its top edge, below the tab and
@@ -263,9 +289,115 @@ YT = YB0 + 2.8
 b.place_row("J5", TX0 + 2.25, YT, side="B")                  # 2.54 mm pads for wires
 for i, s in enumerate(("IO40", "RXD", "TXD", "PA2", "PD7", "GND")):
     pad_label(s, TX0 + 2.25 + 2.54 * i, YT + 1.6)
-for i, s in enumerate(("5V", "3V3", "GND", "SDA", "SCL", "R-TX", "R-RX", "R-OUT")):
-    b.place(f"TP{i + 1}", TX0 + 18.75 + 3.0 * i, YT, 0, side="B")
-    pad_label(s, TX0 + 18.75 + 3.0 * i, YT + 1.3)
+# On the keys board the radar's three come in the order its tracks arrive in, so they don't cross
+SLOTS = (0, 1, 2, 3, 4, 6, 7, 5) if BUILD == "keys" else range(8)
+for i, (s, slot) in enumerate(zip(("5V", "3V3", "GND", "SDA", "SCL", "R-TX", "R-RX", "R-OUT"), SLOTS)):
+    b.place(f"TP{i + 1}", TX0 + 18.75 + 3.0 * slot, YT, 0, side="B")
+    pad_label(s, TX0 + 18.75 + 3.0 * slot, YT + 1.3)
+
+# --- alignment holes for the wall mount's two pins: 2.2 mm, near the bar's ends above the keys,
+# clear of the switches, the SHT40's U-tab and the enclosure's top wall --------------------------------
+for i, s in enumerate((-1, 1)):
+    b.add_footprint("MountingHole:MountingHole_2.2mm_M2", EC + s * 37.0, YB0 + 4.5, ref=f"MH{i + 1}")
+
+# --- routed by hand, before the autorouter ----------------------------------------------------------
+# The tongue's four nets, thin so little heat reaches the SHT40 along them. Up the tongue they run
+# on the back, because C4's pads leave no room for tracks beside them on the front. Above it, where
+# MH2's hole leaves little room on the keys board, SDA turns left on the back, and +3V3 and SCL
+# change to the front and turn left too, ending clear of the tongue for the autorouter. GND ends in
+# the back pour.
+TW = 0.25                                                    # track width on the tongue
+TV = dict(d=0.5, drill=0.25)                                 # small vias: the tongue is 3.1 mm wide
+sda, scl, vdd, vss = (b.pad_xy("U5", n) for n in (1, 2, 3, 4))
+cvdd, cvss = b.pad_xy("C4", 1), b.pad_xy("C4", 2)
+YTOP = UT - 0.6
+XOUT = UL - 0.8                                              # where the hand-routed tracks end
+x, y = TONGUE_X - 0.95, sda[1] + 0.15                        # SDA: via beside the SHT40's lower pad
+b.track("SDA", pcbnew.F_Cu, [sda, (x, y)], TW)
+b.via("SDA", x, y, **TV)
+b.track("SDA", pcbnew.B_Cu, [(x, y), (x, YTOP), (XOUT, YTOP)], TW)
+x, y = TONGUE_X + 0.95, scl[1] + 0.15                        # SCL likewise
+b.track("SCL", pcbnew.F_Cu, [scl, (x, y)], TW)
+b.via("SCL", x, y, **TV)
+b.track("SCL", pcbnew.B_Cu, [(x, y), (x, YTOP)], TW)
+b.via("SCL", x, YTOP, **TV)
+b.track("SCL", pcbnew.F_Cu, [(x, YTOP), (x - 0.6, UT - 1.03), (XOUT, UT - 1.03)], TW)
+x, y = TONGUE_X + 0.3, cvdd[1] + 1.4                         # +3V3: SHT40 to C4 on the front, then to the back
+b.track("+3V3", pcbnew.F_Cu, [vdd, (vdd[0], cvdd[1])], TW)
+b.track("+3V3", pcbnew.F_Cu, [(vdd[0], y), (x, y)], TW)
+b.via("+3V3", x, y, **TV)
+b.track("+3V3", pcbnew.B_Cu, [(x, y), (x, UT - 0.08)], TW)
+b.via("+3V3", x, UT - 0.08, **TV)
+b.track("+3V3", pcbnew.F_Cu, [(x, UT - 0.08), (x - 0.4, UT - 0.48), (XOUT, UT - 0.48)], TW)
+x, y = TONGUE_X - 0.3, vss[1] - 0.9                          # GND: a via each for the SHT40 and C4
+b.track("GND", pcbnew.F_Cu, [vss, (x, y)], TW)
+b.via("GND", x, y, **TV)
+b.track("GND", pcbnew.B_Cu, [(x, y), (x, YTOP)], TW)
+b.track("GND", pcbnew.F_Cu, [cvss, (x, cvss[1] - 1.1)], TW)
+b.via("GND", x, cvss[1] - 1.1, **TV)
+# The pours stay off the tongue, which would otherwise conduct the bar's heat to the SHT40.
+for layer in (pcbnew.F_Cu, pcbnew.B_Cu):
+    b.no_pour(layer, (UL, UT - 0.5, UR, UB))
+# No other tracks on the back above the tongue, so GND's stub keeps its way out to the back pour
+# and the router has to take SCL's and +3V3's stubs on the front.
+b.no_tracks(pcbnew.B_Cu, (TONGUE_X - 1.25, YB0 + 0.3, BR - 0.3, UT - 1.0))
+
+if BUILD == "keys":
+    # The radar's five tracks, side by side on the back and straight across the left bridge, so
+    # there is one side to score. Pin 1 (+3V3) is nearest the bridge; the other pins' tracks come
+    # round the header column's right side. Left of the bridge they fan out and run up the bar, left
+    # of key 2, then along above the keys' sockets to the test points. The router takes them on from
+    # there. GND, which the others leave no way out for, drops to the front pour by a via.
+    D = 0.4                                                  # corner chamfer
+    CROSS = (("RADAR_RX", 0.25), ("RADAR_TX", 0.25), ("GND", 0.3), ("RADAR_OUT", 0.25), ("+3V3", 0.3))
+    GAP_T = 0.22                                             # between the tracks on the bridge
+    ys, y = {}, BR_Y - (sum(w for _, w in CROSS) + GAP_T * (len(CROSS) - 1)) / 2
+    for net, w in CROSS:
+        ys[net] = y + w / 2
+        y += w + GAP_T
+    for i, (net, w) in enumerate(CROSS):
+        b.track(net, pcbnew.B_Cu, [(PX0 - 3.4, BR_Y + (i - 2) * 0.75), (PX0 - 1.8, ys[net]), (PX0 + 0.8, ys[net])], w)
+    b.track("+3V3", pcbnew.B_Cu, [(PX0 + 0.8, ys["+3V3"]), b.pad_xy("U3", 1)], 0.3)
+    for i, (net, pad, w) in enumerate((("RADAR_OUT", 2, 0.25), ("GND", 3, 0.3), ("RADAR_TX", 4, 0.25),
+                                       ("RADAR_RX", 5, 0.25))):
+        px, py = b.pad_xy("U3", pad)
+        xc = px + 1.22 + 0.55 * i                            # columns right of the header
+        b.track(net, pcbnew.B_Cu, [(px, py), (xc - D, py), (xc, py - D), (xc, ys[net] + D), (xc - D, ys[net]),
+                                   (PX0 + 0.8, ys[net])], w)
+    XF, BUS = PX0 - 3.4, {}                                  # fan-out's left end; the bus: column x, row y, test point
+    for net, xc, yr, tp, w in (("RADAR_RX", XF - 0.2, 44.6, "TP7", 0.25), ("RADAR_TX", XF - 0.8, 44.1, "TP6", 0.25),
+                               ("RADAR_OUT", XF - 2.2, 43.6, "TP8", 0.25), ("+3V3", XF - 2.8, 43.1, "TP2", 0.3)):
+        y0 = BR_Y + (next(i for i, (n, _) in enumerate(CROSS) if n == net) - 2) * 0.75
+        tx, ty = b.pad_xy(tp, 1)
+        b.track(net, pcbnew.B_Cu, [(XF, y0), (xc, y0 - (XF - xc)), (xc, yr + D), (xc + D, yr), (tx - D, yr), (tx, yr - D),
+                                   (tx, ty)], w)
+    xc = XF - 1.5
+    b.track("GND", pcbnew.B_Cu, [(XF, BR_Y), (xc, BR_Y - (XF - xc)), (xc, BR_Y - (XF - xc) - 0.9)], 0.3)
+    b.via("GND", xc, BR_Y - (XF - xc) - 0.9)
+
+# --- GND: pours on both sides, not wired by the router (autoroute.py --planes=GND). Every SMD GND pad
+# gets its own via, as routing could otherwise fence it off from its pour. The tongue's are done. No
+# vias inside pads (big_pad_mm2): they are soldered by hand. The pours stay off the bridges, so only
+# the radar's tracks need scoring -------------------------------------------------------------------
+NETCLASSES = {
+    "Supply": (0.5, 0.2, ["+5V"]),                  # feeds the panel too
+    "Power": (0.3, 0.2, ["+3V3", "GND"]),           # about 100 mA; GND is mostly the pours
+    "Default": (0.25, 0.2, []),
+}
+# J4's GND pad has no via of its own and sits among the co-processor's tracks: tie it to TP3 first
+b.track("GND", pcbnew.B_Cu, [b.pad_xy("J4", 3), b.pad_xy("TP3", 1)], 0.5)
+n_pads, n_vias = fanout(b.board, ["GND"], via_d=0.6, drill=0.3, big_pad_mm2=99.0, clearance_of=clearance_lookup(NETCLASSES),
+                        refs=set(b.fps) - {"U5", "C4"})
+print(f"GND fanout: {n_pads} pads, {n_vias} vias")
+b.zone("GND", pcbnew.B_Cu)
+b.zone("GND", pcbnew.F_Cu)
+if BUILD == "keys":
+    for rect in ((PX0 - 1.6, BR_Y - 2.3, PX0 + 0.6, BR_Y + 2.3), (PX1 - 0.6, BR_Y - 2.3, PX1 + 1.6, BR_Y + 2.3),
+                 (TOP_BRIDGE - 2.3, YNB - 0.6, TOP_BRIDGE + 2.3, YPT + 0.6)):
+        for layer in (pcbnew.F_Cu, pcbnew.B_Cu):
+            b.no_pour(layer, rect)
+    # no front tracks on the left bridge: the radar's nets take the stubs on the back
+    b.no_tracks(pcbnew.F_Cu, (PX0 - 1.6, BR_Y - 2.3, PX0 + 0.6, BR_Y + 2.3))
 
 print("overlaps:", b.overlaps())
 print("unplaced:", b.unplaced())
@@ -281,7 +413,4 @@ for fp in b.fps.values():           # JLCPCB legend minimum is 0.15 mm lines
                 and not g.IsAnyFill() and g.GetWidth() < pcbnew.FromMM(0.15)):
             g.SetWidth(pcbnew.FromMM(0.15))
 
-b.save(HERE / f"{PROJECT}.kicad_pcb", netclasses={
-    "Supply": (0.5, 0.2, ["+5V", "+3V3", "GND"]),
-    "Default": (0.25, 0.2, []),
-})
+b.save(HERE / f"{PROJECT}.kicad_pcb", netclasses=NETCLASSES)

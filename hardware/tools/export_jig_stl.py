@@ -8,6 +8,7 @@ Printed holes come out undersized, so on a temporary copy of the board the holes
 pins have to go through are opened up (the KiCad board keeps the real sizes):
 - 2.54 mm header holes (J1 to the panel, J4, J5, the radar U3): 1.7 mm
 - encoder pins: 1.5 mm, encoder mounting-tab slots: +0.2 mm
+- the wall mount's 2.0 mm alignment pins (MH1, MH2, 2.2 mm on the board): 2.9 mm
 Writes hardware/addon-<board>/mockup/addon-<board>-alignment.stl.
 """
 import pathlib
@@ -29,6 +30,7 @@ CLI = r"C:\Program Files\KiCad\10.0\bin\kicad-cli.exe"
 HEADER_DRILL = 1.7
 ENC_PIN_DRILL = 1.5
 ENC_SLOT_GROW = 0.2
+MH_DRILL = 2.9
 
 
 def drill(pad, w, h=None):
@@ -39,6 +41,9 @@ b = pcbnew.LoadBoard(str(BOARD))
 for fp in b.GetFootprints():
     ref = fp.GetReference()
     for pad in fp.Pads():
+        if ref.startswith("MH"):            # plain holes, so before the plated-only check
+            drill(pad, MH_DRILL)
+            continue
         if pad.GetAttribute() != pcbnew.PAD_ATTRIB_PTH:
             continue
         if ref in ("J1", "J4", "J5", "U3"):

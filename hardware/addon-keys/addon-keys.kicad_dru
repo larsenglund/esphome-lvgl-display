@@ -13,6 +13,12 @@
   (constraint courtyard_clearance (min -1mm))
   (condition "A.Library_Link == 'Connector_PinHeader_2.54mm:*' && B.Library_Link == 'Connector_PinHeader_2.54mm:*'"))
 
+# Every SMD GND pad has its own via and stub: one spoke is enough, and easier to hand-solder
+# (the USB-C's pads by the board's edge get no more than that).
+(rule "pads with a via: one thermal spoke is enough"
+  (constraint min_resolved_spokes 1)
+  (condition "A.Type == 'Pad'"))
+
 # The radar sits right under key 2, so on its 2.5 mm header it reaches over key 2's lower
 # edge, the notch in the bar and the break-away bridges (their mouse-bite holes).
 (rule "radar floats over the break line"
