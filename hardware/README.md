@@ -155,7 +155,8 @@ The two boards use the same pins, so one firmware can serve both. It needs to kn
 - **LED fit:** check that a 1206 LED fits in the switch's LED slot. From the datasheet the slot is about 9.4 x 2.7 mm.
 - **SHT40 soldering:** plan how to solder it: hot air or a hot plate, or have JLCPCB fit just that part.
 - **Alignment test:** print `addon-keys/mockup/addon-keys-alignment.stl` or `addon-encoders/mockup/addon-encoders-alignment.stl` (`tools/export_jig_stl.py`), hot-glue a 2x4 header into it and try it on a panel. Its pin holes are opened up for printing: 1.7 mm for the 2.54 mm headers (J1, J4, J5, radar), 1.5 mm for the encoder pins, the encoder tab slots by 0.2 mm, and 2.9 mm for the wall mount's 2.0 mm alignment pins (MH1, MH2; 2.2 mm on the board).
-- **Order files:** still to export: Gerbers and drill files, plus the BOM and placement files if JLCPCB is to fit any parts.
+- **JLCPCB's limits (checked against its capabilities page, 2026-10-31):** tracks, clearances, vias and annular rings are all inside them, with no surcharge for via size. Three things fall outside its guidance: the silkscreen labels are 0.8 mm tall against a 1.0 mm minimum (still 0.15 mm lines, so they should print, just small); the encoders' plated tab slots (1.9 x 2.7 mm) are shorter than the twice-their-width it asks for; and the keys board's mouse-bite bridges are 4 mm against 5 mm for its panel tabs, though it doesn't say that applies inside one design.
+- **Order files:** `tools/export_gerbers.py` writes `addon-<board>/production/addon-<board>-gerbers.zip` (git-ignored). Export again after any change to the board. There's no BOM or placement file yet, in case JLCPCB is to fit any parts.
 - **Firmware:** still to write: the CH32V003 firmware and the ESPHome component that talks to it.
 
 ## Files
@@ -172,6 +173,7 @@ The two boards use the same pins, so one firmware can serve both. It needs to kn
 | `tools/addon_lib.py` | Makes the radar symbol and footprint, the hot-swap MX, PEC11R, SHT40 and hand-solder SOIC-16 footprints, the mouse bites, and the USB-C footprint |
 | `tools/export_jig_stl.py` | The fit-test STL, with the pin holes opened up for printing |
 | `tools/stitch.py` | Stitching vias between the GND pours, after routing |
+| `tools/export_gerbers.py` | The Gerber and drill zip to upload to the fab |
 | `tools/autoroute.py`, `tools/finish_route.py`, `tools/fanout.py` | Freerouting, the A* router for what it leaves open, and a via for each SMD GND pad, from fablights. These know these boards aren't rectangles |
 | `tools/` | schgen, pcbbuild, netcheck, import_lcsc, render3d, from the LED controller project |
 
@@ -198,6 +200,7 @@ for B in keys encoders; do
   "$CLI" pcb drc --schematic-parity --severity-all -o drc-$B.rpt $P.kicad_pcb
   "$KPY" hardware/tools/render3d.py addon-$B                               # renders/
   "$KPY" hardware/tools/export_jig_stl.py $B                               # fit-test STL (git-ignored)
+  python hardware/tools/export_gerbers.py $B                               # Gerbers and drill for the fab (git-ignored)
 done
 ```
 

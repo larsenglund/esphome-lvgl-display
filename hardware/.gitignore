@@ -10,6 +10,7 @@ _render_*.kicad_pro
 *.dsn
 *.ses
 *.route.log
+production/
 *.net
 __pycache__/
 */mockup/*.stl
