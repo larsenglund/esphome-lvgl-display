@@ -162,8 +162,8 @@ class Part:
 
 
 class Schematic:
-    def __init__(self, project, paper="A3", title=""):
-        self.project, self.paper, self.title = project, paper, title
+    def __init__(self, project, paper="A3", title="", rev=""):
+        self.project, self.paper, self.title, self.rev = project, paper, title, rev
         self.libs = Libraries()
         self.parts = []
         self.texts = []
@@ -262,7 +262,7 @@ class Schematic:
         tree = ["kicad_sch", ["version", "20260306"], ["generator", Str("eeschema")],
                 ["generator_version", Str("10.0")], ["uuid", Str(self.root)],
                 ["paper", Str(self.paper)],
-                ["title_block", ["title", Str(self.title)]],
+                ["title_block", ["title", Str(self.title)]] + ([["rev", Str(self.rev)]] if self.rev else []),
                 ["lib_symbols"] + list(lib_symbols.values())] + body + [
                 ["sheet_instances", ["path", Str("/"), ["page", Str("1")]]],
                 ["embedded_fonts", "no"]]

@@ -111,6 +111,12 @@ class Board:
         ds.m_ViasMinAnnularWidth = pcbnew.FromMM(0.1)
         ds.m_SilkClearance = pcbnew.FromMM(0.1)
         self.comps, self.pads = read_netlist(self.sch)
+        # The board's title block repeats the schematic's
+        tb = find(parse(self.sch.read_text(encoding="utf-8")), "title_block")
+        title, rev = (find(tb, key) if tb else None for key in ("title", "rev"))
+        self.rev = str(rev[1]) if rev else ""
+        self.board.GetTitleBlock().SetTitle(str(title[1]) if title else "")
+        self.board.GetTitleBlock().SetRevision(self.rev)
         self.nets = {}
         for name in sorted(set(self.pads.values())):
             ni = pcbnew.NETINFO_ITEM(self.board, name)

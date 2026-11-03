@@ -38,7 +38,9 @@ wall box and away from the SHT40.
 - SHT40 (bare, 1.5 mm DFN) on a U-tab at the bar's right end, beside key 3 or
   encoder 2, with its capacitor; free lower end near the bottom edge.
 - Spare pads (J5) and test points on the bar's back, in a row along its top
-  edge, below the tab, behind the enclosure's top border.
+  edge, below the tab, behind the enclosure's top border. The keys' or encoders'
+  own test points sit near that row, where the back has room beside their tracks.
+- The board's name and rev on the bar's back.
 - Panel: 86.5 x 86.5 x 13.6 mm (Guition's drawing). Its H1 header (2x4,
   2.54 mm) was measured: centre 23.7 mm left of and 16.2 mm below the
   panel's centre, seen from the front (HDR_*).
@@ -294,6 +296,17 @@ SLOTS = (0, 1, 2, 3, 4, 6, 7, 5) if BUILD == "keys" else range(8)
 for i, (s, slot) in enumerate(zip(("5V", "3V3", "GND", "SDA", "SCL", "R-TX", "R-RX", "R-OUT"), SLOTS)):
     b.place(f"TP{i + 1}", TX0 + 18.75 + 3.0 * slot, YT, 0, side="B")
     pad_label(s, TX0 + 18.75 + 3.0 * slot, YT + 1.3)
+# The keys' or encoders' signals: x, y, then the label's centre from the pad. These were added after
+# routing, beside tracks that were already there, so they are placed by number and not from the row.
+EXTRA_TP = {"keys": (("K1", 19.5, 44.75, 2.3, 0), ("K2", 32.0, 46.5, 2.3, 0), ("K3", 52.5, 46.5, 2.3, 0),
+                     ("LED1", 25.2, 27.95, 0, -1.6), ("LED2", 27.4, 35.75, 0.5, 1.7), ("LED3", 29.9, 35.4, 2.9, 0)),
+            "encoders": (("E1_A", 29.611, 44.75, 2.9, 0), ("E1_B", 23.375, 44.75, 2.9, 0), ("E1_SW", 16.9, 44.75, 3.3, 0),
+                         ("E2_A", 52.5, YT, 2.9, 0), ("E2_B", 59.348, YT, 2.9, 0), ("E2_SW", 28.25, 35.75, -3.3, 0))}[BUILD]
+for i, (s, x, y, dx, dy) in enumerate(EXTRA_TP):
+    b.place(f"TP{i + 9}", x, y, 0, side="B")
+    label(s, x + dx, y + dy, size=0.8, back=True)
+
+label(f"{PROJECT} rev {b.rev}", *((66.5, 41.3) if BUILD == "keys" else (70.0, 38.2)), back=True)
 
 # --- alignment holes for the wall mount's two pins: 2.2 mm, near the bar's ends above the keys,
 # clear of the switches, the SHT40's U-tab and the enclosure's top wall --------------------------------
@@ -406,6 +419,10 @@ for ref in [r for r in ("D1", "D2", "D3") if r in b.fps]:   # LEDs under the swi
     for g in list(b.fps[ref].GraphicalItems()):
         if g.GetLayer() == pcbnew.F_SilkS and not isinstance(g, pcbnew.PCB_TEXT):
             b.fps[ref].Remove(g)
+if BUILD == "keys":                 # LED3's test pad is too close to J4's pad for its silk ring
+    for g in list(b.fps["TP14"].GraphicalItems()):
+        if g.GetLayer() == pcbnew.B_SilkS and not isinstance(g, pcbnew.PCB_TEXT):
+            b.fps["TP14"].Remove(g)
 b.refs_to_fab()
 for fp in b.fps.values():           # JLCPCB legend minimum is 0.15 mm lines
     for g in fp.GraphicalItems():

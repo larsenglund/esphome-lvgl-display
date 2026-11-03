@@ -14,6 +14,8 @@ They share everything except the bar below the display. Every KiCad file is gene
 - **Measured on a panel:** the header's position. The measurement agrees with a community replacement back cover to about 0.1 mm.
 - **Placeholder:** the tab's outline.
 
+**Revision:** both boards are rev A, marked on the bar's back silkscreen (`addon-keys rev A`, `addon-encoders rev A`) and in the schematic and PCB title blocks. `REV` in `addon/gen_addon.py` sets all of them. A board that changes after one has been made needs a new rev.
+
 ![keys enclosure overlay](addon-keys/renders/addon-keys-enclosure-overlay.png)
 ![encoders enclosure overlay](addon-encoders/renders/addon-encoders-enclosure-overlay.png)
 
@@ -35,7 +37,7 @@ Keys and encoders are never fitted together. With the encoders as far apart as t
   - A bare SHT40 on a U-tab at the bar's right end.
   - 3.3 V LDO.
   - 5 V in from solder pads or an optional USB-C. The board feeds 5 V to the panel through the 2x4 header, so the panel's own USB is never connected.
-  - Spare pins on solder pads (J5) and eight test points.
+  - Spare pins on solder pads (J5) and fourteen test points.
 
 ## Board (both)
 
@@ -64,6 +66,9 @@ Keys and encoders are never fitted together. With the encoders as far apart as t
 - **Spare pads and test points (back, along the bar's top edge below the tab, behind the enclosure's top border):**
   - **J5:** a row of 2.54 mm through-hole pads for wires or a header, labelled on the back. In order: IO40, RXD and TXD (the ESP's UART0, which carries its boot log), PA2 and PD7 (the co-processor's spare pins; PD7 doubles as NRST), and GND.
   - **TP1-TP8:** 1.5 mm pads on the back, 3 mm apart: 5V, 3V3, GND, SDA, SCL and the radar's TX, RX and OUT (labelled R-TX, R-RX, R-OUT). On the keys board the radar's three are in the order R-OUT, R-TX, R-RX, the order their tracks arrive in. They stay on the bar when the keys board's radar piece is snapped off.
+  - **TP9-TP14:** 1.5 mm pads on the back for the keys' or encoders' own signals, each labelled beside it. They sit where the back has room next to those tracks, so they aren't all in the row:
+    - **Keys board:** K1, K2 and K3 below the row, LED2 and LED3 above it on the tab, and LED1 further up the tab, between the co-processor and the resistors.
+    - **Encoders board:** E1_SW, E1_B and E1_A in a second row below J5, E2_A and E2_B at the right-hand end of the row, and E2_SW above the 5V pad.
 - **Alignment holes MH1 and MH2:** 2.2 mm, no copper, 37 mm left and right of the centre and 4.5 mm below the panel's bottom edge, for the wall mount's 2 mm pins.
 - **Tab (behind the panel):**
   - **Size and position:** 28.5 mm wide. Its left edge stays clear of the stock back cover's screw near the panel's lower-left corner (front view, about 37 mm left of and 29 mm below the centre).
@@ -87,6 +92,7 @@ Keys and encoders are never fitted together. With the encoders as far apart as t
 - **Vias:** tented on both sides. None inside pads, as those are soldered by hand.
 - **SHT40 tongue:** routed by hand, with its own 0.25 mm tracks up the back and no pour on either side, so little heat reaches the sensor along the copper.
 - **Everything else:** Freerouting, best of several runs, then a small A* router for anything left open. It runs on both sides of the board, including under the switches and encoders; the copper there is covered by solder mask.
+- **TP9-TP14:** added to the routed boards afterwards, on or beside the tracks already there, with short tracks and one via (LED1's, on the keys board). A fresh `route_addon.py` run puts them in the same spots and routes them like any other net.
 
 ## Keys board
 
@@ -127,36 +133,37 @@ The two boards use the same pins, so one firmware can serve both. It needs to kn
 |---|---|---|---|
 | U1 | LDL1117S33R, 3.3 V LDO, SOT-223 | C435835 | both |
 | U2 | CH32V003A4M6, SOP-16 | C5346357 | both |
-| U3 | HLK-LD2402 radar | | both, optional |
+| U3 | HLK-LD2402 radar | C48935081 | both, optional |
 | SW1-SW3 | CPG151101S11-16 hot-swap socket + CPG151101D13 switch | C41430893 + C49234235 | keys |
 | D1-D3 | warm-white 1206 LED, 2700-3000 K (LCSC doesn't stock one; e.g. Electrokit 40307556) | | keys |
 | R5-R7 | 100 R 1206 | C17901 | keys |
 | ENC1, ENC2 | Bourns PEC11R-4215F-S0024 | C143790 | encoders |
 | C1, C2 | 10 uF 1206 | C7467044 | both |
-| C3 | 100 nF 1206 | C24497 | both |
+| C3 | 100 nF 1206 | C93194 | both |
 | R3, R4 | 4.7k 1206 (I2C pull-ups) | C17936 | both |
-| J1 | 2x4 male header, 2.54 mm, into the panel's H1 (pin length: see below) | | both |
+| J1 | 2x4 male header, 2.54 mm, into the panel's H1 (pin length: see below) | C492421 | both |
 | J2 | 5 V wire pads | | both |
 | J3, R1, R2 | USB-C 6P power-only, 4.7k CC pull-downs (5.1k +-20 %) | C456012, C17936 | both, optional |
 | J4 | programming pads: SWIO, 3V3, GND | | not fitted |
 | J5 | spare pads: IO40, RXD, TXD, PA2, PD7, GND | | not fitted |
-| TP1-TP8 | test points, bare 1.5 mm pads | | both, no part |
-| U5 | Sensirion SHT40-AD1B-R2 (I2C 0x44), DFN-4 1.5 x 1.5 mm | C2909890 | both |
-| C4 | 100 nF 1206, on the SHT40 tab | C24497 | both |
+| TP1-TP14 | test points, bare 1.5 mm pads | | both, no part |
+| U5 | Sensirion SHT40-AD1B-R2 (I2C 0x44), DFN-4 1.5 x 1.5 mm. Not in LCSC's shop: see below | C2909890, for JLCPCB fitting it; DigiKey 1649-SHT40-AD1B-R2CT-ND to solder by hand | both |
+| C4 | 100 nF 1206, on the SHT40 tab | C93194 | both |
 
 ## Before ordering
 
 - **Header position:** worth a careful second measurement before ordering, since a board-to-board connector leaves no slack. It is set by `HDR_DX` and `HDR_DY` in `place_addon.py`.
 - **Panel links:** check that R25-R27 (0 Ω) are fitted on your panels, so IO1 and IO2 actually reach H1. That is likely on relay units and should be checked on ones bought without relays.
-- **Pin length:** H1 stands about 3 mm out of the back cover and the board's front is 3.2 mm behind it, so J1's pins must reach about 3.2 mm plus H1's contact depth past the board's front. A standard header with its plastic spacer on the front won't fit the gap: use long pins with the spacer on the back, or slide the spacer off after soldering.
+- **Pin length:** H1 stands about 3 mm out of the panel's back and the board's front is 3.2 mm behind that back, so H1's mouth is only 0.2 mm from the board's front. That leaves no room for a header's 2.5 mm plastic spacer or for a solder fillet on the front. So use a standard 2x4 header (C492421: 6 mm pins, 2.5 mm spacer, 3 mm tails) like this: push the tails in from the front, solder on the back, pull the spacer off over the pin tips, then cut the pins to about 6 mm past the board's front. That goes about as deep into H1 as a normal header would. H1's actual depth hasn't been measured, so check it with a loose pin before cutting. A long-pin header with its spacer on the back, such as C7128766 (8.13 mm pins), also reaches, but it has to be soldered on the front or with the spacer held off the back.
 - **Mechanics:** check how the board gets past the frame rim, and the outline.
 - **Radar pinout:** check the module's print against 1 VCC, 2 OUT, 3 GND, 4 TX, 5 RX (Hi-Link manual p. 7).
 - **Radar header:** the radar's pins must come out of the non-antenna side.
 - **LED fit:** check that a 1206 LED fits in the switch's LED slot. From the datasheet the slot is about 9.4 x 2.7 mm.
-- **SHT40 soldering:** plan how to solder it: hot air or a hot plate, or have JLCPCB fit just that part.
+- **SHT40:** LCSC's shop doesn't sell Sensirion's part. C2909890 only works for having JLCPCB fit it (16,586 in its parts data on 2026-11-02). To solder it by hand, buy DigiKey 1649-SHT40-AD1B-R2CT-ND: cut tape, 3,379 in stock and 17.11 kr each for 5 or more on 2026-11-02. Either plan how to solder it (hot air or a hot plate) or have JLCPCB fit just that part. LCSC does sell look-alikes named SHT40, untested here. The datasheet of Nyfea's SHT40-N-NF (C54946589, about $1) states the same address (0x44), pin order and measure command (0xFD); C55170371 and C54823945 are others.
 - **Alignment test:** print `addon-keys/mockup/addon-keys-alignment.stl` or `addon-encoders/mockup/addon-encoders-alignment.stl` (`tools/export_jig_stl.py`), hot-glue a 2x4 header into it and try it on a panel. Its pin holes are opened up for printing: 1.7 mm for the 2.54 mm headers (J1, J4, J5, radar), 1.5 mm for the encoder pins, the encoder tab slots by 0.2 mm, and 2.9 mm for the wall mount's 2.0 mm alignment pins (MH1, MH2; 2.2 mm on the board).
 - **JLCPCB's limits (checked against its capabilities page, 2026-10-31):** tracks, clearances, vias and annular rings are all inside them, with no surcharge for via size. Three things fall outside its guidance: the silkscreen labels are 0.8 mm tall against a 1.0 mm minimum (still 0.15 mm lines, so they should print, just small); the encoders' plated tab slots (1.9 x 2.7 mm) are shorter than the twice-their-width it asks for; and the keys board's mouse-bite bridges are 4 mm against 5 mm for its panel tabs, though it doesn't say that applies inside one design.
-- **Order files:** `tools/export_gerbers.py` writes `addon-<board>/production/addon-<board>-gerbers.zip` (git-ignored). Export again after any change to the board. There's no BOM or placement file yet, in case JLCPCB is to fit any parts.
+- **Parts lists:** [addon-keys/lcsc-order-5.csv](addon-keys/lcsc-order-5.csv) and [addon-encoders/lcsc-order-5.csv](addon-encoders/lcsc-order-5.csv) are LCSC BOM uploads for 5 boards with spares, checked against LCSC's stock, minimums and prices on 2026-11-02. They come to about $13 and $33, plus $15 if you take the 5 radars on each list: LCSC only has 11, so delete that line for any you already have. Not on them: D1-D3 and U5 (LCSC doesn't sell them; see above), keycaps and knobs, and pins for the radar if yours comes without. J4 and J5 aren't fitted.
+- **Order files:** `tools/export_gerbers.py` writes `addon-<board>/production/addon-<board>-gerbers.zip` (git-ignored). Export again after any change to the board. There's no placement file yet, in case JLCPCB is to fit any parts.
 - **Firmware:** still to write: the CH32V003 firmware and the ESPHome component that talks to it.
 
 ## Files
@@ -207,7 +214,7 @@ done
 **Don't run `kicad-cli sym upgrade` on `lib/addon.kicad_sym`:** kicad-cli 10.0.6 then crashes loading any schematic that embeds the upgraded radar symbol.
 
 **Expected DRC result:**
-- `lib_footprint_issues` (26 and 20), which kicad-cli prints because there's no global footprint library table on this machine.
+- `lib_footprint_issues` (32 and 26), which kicad-cli prints because there's no global footprint library table on this machine.
 - Nothing else. Rules in `addon-keys.kicad_dru` allow the keys board's intended overlaps: the LEDs inside the switches, and the radar over key 2's edge and the break line. The encoders board needs none.
 
 ## Sources

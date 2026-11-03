@@ -19,9 +19,9 @@ to the HLK-LD2402 radar), a bare SHT40 on a U-tab at the bar's right end,
 through the header. The co-processor's pins do the same jobs on both boards
 (one firmware, told which board it is on). The header's unused pins (IO40,
 UART0) and the co-processor's spare PA2/PD7 come out on pads (J5); test points
-on 5 V, 3.3 V, GND, I2C and the radar's lines. Hand-solder parts throughout (1206,
-SOT-223, SOIC-16), apart from the SHT40 (1.5 mm DFN: hot air, or extended pads
-and patience).
+on 5 V, 3.3 V, GND, I2C, the radar's lines and the keys' or encoders' signals.
+Hand-solder parts throughout (1206, SOT-223, SOIC-16), apart from the SHT40
+(1.5 mm DFN: hot air, or extended pads and patience).
 """
 import pathlib
 import shutil
@@ -36,8 +36,9 @@ if BUILD not in ("keys", "encoders"):
     sys.exit("usage: gen_addon.py keys|encoders")
 PROJECT = f"addon-{BUILD}"
 OUTDIR = ROOT / "hardware" / PROJECT
+REV = "A"            # also goes on the board: its title block and back silkscreen (place_addon.py)
 
-sch = Schematic(PROJECT, paper="A3", title=f"Guition 4848S040 add-on ({BUILD}): radar, SHT40")
+sch = Schematic(PROJECT, paper="A3", title=f"Guition 4848S040 add-on ({BUILD}): radar, SHT40", rev=REV)
 R1206 = "Resistor_SMD:R_1206_3216Metric_Pad1.30x1.75mm_HandSolder"
 C1206 = "Capacitor_SMD:C_1206_3216Metric_Pad1.33x1.80mm_HandSolder"
 LED1206 = "LED_SMD:LED_1206_3216Metric_Pad1.42x1.75mm_HandSolder"
@@ -67,7 +68,7 @@ sch.text("Power: 5 V from the solder pads (J2) or the optional USB-C (J3), never
 # 5 IO2 (relay 2), 6 U0TXD, 7 IO1 (relay 3), 8 5V. No 3.3 V on H1. IO40/IO2/IO1 reach H1
 # through 0R links R25-R27 on the panel (R21-R23 instead send them to the audio amplifier).
 sch.add("Connector_Generic:Conn_02x04_Odd_Even", "J1", "GUITION H1", (45, 60),
-        fp="addon:Guition_H1_2x04_P2.54mm_Mating",
+        fp="addon:Guition_H1_2x04_P2.54mm_Mating", lcsc="C492421",
         pins={"1": "GND", "2": "GND", "3": "IO40", "4": "U0RXD", "5": "SCL", "6": "U0TXD", "7": "SDA",
               "8": "+5V"},
         fields={"Note": "plugs into the panel's H1; SDA = IO1 (pin 7), SCL = IO2 (pin 5); "
@@ -106,7 +107,7 @@ sch.add("MCU_WCH_RiscV:CH32V003AxMx", "U2", "CH32V003A4M6", (225, 90),
               "PD5": "RADAR_RX", "PD6": "RADAR_TX", "PD4": "RADAR_OUT",
               "PD1": "SWIO", "PD7": "PD7", "PA2": "PA2", **IO},
         fields={"Note": "PD5 = USART1 TX, PD6 = RX; PC1/PC2 = I2C1; PD7 (NRST) and PA2 spare, on J5"})
-C("C3", "100n", "C24497", "+3V3", "GND", (255, 70), fields={"Note": "at U2 VDD"})
+C("C3", "100n", "C93194", "+3V3", "GND", (255, 70), fields={"Note": "at U2 VDD"})
 R("R3", "4.7k", "C17936", "+3V3", "SDA", (170, 110), fields={"Note": "I2C pull-up"})
 R("R4", "4.7k", "C17936", "+3V3", "SCL", (180, 110), fields={"Note": "I2C pull-up"})
 sch.add("Connector_Generic:Conn_01x03", "J4", "SWIO 3V3 GND", (275, 100), fp=HDR.format(3), dnp=True,
@@ -115,17 +116,21 @@ sch.add("Sensor_Humidity:SHT4x", "U5", "SHT40-AD1B-R2", (285, 130),
         fp="addon:Sensirion_DFN-4_1.5x1.5mm_P0.8mm_SHT4x_HandSolder", lcsc="C2909890",
         pins={"SDA": "SDA", "SCL": "SCL", "VDD": "+3V3", "VSS": "GND"},
         fields={"Note": "I2C 0x44; at the free end of the U-tab at the bar's right end"})
-C("C4", "100n", "C24497", "+3V3", "GND", (265, 130), fields={"Note": "on the SHT40's U-tab"})
+C("C4", "100n", "C93194", "+3V3", "GND", (265, 130), fields={"Note": "on the SHT40's U-tab"})
 
 # --- spare pins and test points ------------------------------------------------------------------
 sch.text("Spare pins on J5 (2.54 mm pads for wires): the panel's IO40 and UART0 from H1, the\n"
-         "co-processor's PA2 and PD7 (NRST), and GND. Test points TP1-TP8 (1.5 mm pads on the back):\n"
-         "5 V, 3.3 V, GND, I2C and the radar's UART and OUT.", (320, 160), size=1.5)
+         "co-processor's PA2 and PD7 (NRST), and GND. Test points TP1-TP14 (1.5 mm pads on the back):\n"
+         "5 V, 3.3 V, GND, I2C, the radar's UART and OUT, and the keys' or encoders' signals.", (320, 150), size=1.5)
 sch.add("Connector_Generic:Conn_01x06", "J5", "SPARE", (335, 195), fp=HDR.format(6), dnp=True,
         pins={"1": "IO40", "2": "U0RXD", "3": "U0TXD", "4": "PA2", "5": "PD7", "6": "GND"},
         fields={"Note": "spare pads: IO40 and UART0 of the panel's ESP (its boot log), PA2 and PD7 of U2"})
 for i, net in enumerate(("+5V", "+3V3", "GND", "SDA", "SCL", "RADAR_TX", "RADAR_RX", "RADAR_OUT")):
     sch.add("Connector:TestPoint", f"TP{i + 1}", net, (320 + 11 * i, 240),
+            fp="TestPoint:TestPoint_Pad_D1.5mm", pins={"1": net})
+for i, net in enumerate(("K1", "K2", "K3", "LED1", "LED2", "LED3") if BUILD == "keys" else
+                        ("E1_A", "E1_B", "E1_SW", "E2_A", "E2_B", "E2_SW")):
+    sch.add("Connector:TestPoint", f"TP{i + 9}", net, (352 + 9 * i, 205),
             fp="TestPoint:TestPoint_Pad_D1.5mm", pins={"1": net})
 
 # --- radar ----------------------------------------------------------------------------------------
@@ -135,7 +140,7 @@ where = ("on a break-away piece centred under key 2 (snap it off to build\n"
 sch.text("Radar: HLK-LD2402 soldered on its own 2.5 mm header, antenna side out, " + where + "\n"
          "Check the module's print: 1 VCC, 2 OUT, 3 GND, 4 TX, 5 RX (Hi-Link manual p. 7).",
          (190, 165), size=1.5)
-sch.add("addon:HLK-LD2402", "U3", "HLK-LD2402", (215, 205), fp="addon:HLK-LD2402",
+sch.add("addon:HLK-LD2402", "U3", "HLK-LD2402", (215, 205), fp="addon:HLK-LD2402", lcsc="C48935081",
         pins={"1": "+3V3", "2": "RADAR_OUT", "3": "GND", "4": "RADAR_TX", "5": "RADAR_RX"},
         fields={"Variant": "optional"})
 
