@@ -155,9 +155,9 @@ if BUILD == "keys":
                 lcsc="C41430893", pins={"1": f"K{i + 1}", "2": "GND"},
                 fields={"Note": "LCSC is the socket; switch CPG151101D13 C49234235"})
         R(f"R{i + 5}", "100", "C17901", f"LED{i + 1}", f"LED{i + 1}_A", (365, y))
-        sch.add("Device:LED", f"D{i + 1}", "warm white 1206", (390, y), fp=LED1206,
+        sch.add("Device:LED", f"D{i + 1}", "warm white 1206", (390, y), fp=LED1206, lcsc="C965830",
                 pins={"1": "GND", "2": f"LED{i + 1}_A"},
-                fields={"Note": "2700-3000 K 1206 white LED (not stocked by LCSC; e.g. Electrokit 40307556)"})
+                fields={"Note": "XINGLIGHT XL-3216WWC, 2800-3400 K; any warm-white 1206 fits"})
 else:
     sch.text("Encoders: Bourns PEC11R-4215F-S0024 (24 pulses, push\n"
              "switch) for 25 mm knobs, as far apart as the enclosure's\n"

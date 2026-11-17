@@ -6054,7 +6054,18 @@
 				)
 			)
 		)
-		(property "Note" "2700-3000 K 1206 white LED (not stocked by LCSC; e.g. Electrokit 40307556)"
+		(property "LCSC" "C965830"
+			(at 389.89 54.61 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Note" "XINGLIGHT XL-3216WWC, 2800-3400 K; any warm-white 1206 fits"
 			(at 389.89 54.61 0)
 			(hide yes)
 			(show_name no)
@@ -6066,10 +6077,10 @@
 			)
 		)
 		(pin "1"
-			(uuid "e4c8a267-0bed-4fab-ad99-e6f3e3e215e4")
+			(uuid "9f7b152a-836b-4bf3-aece-b28309e7c947")
 		)
 		(pin "2"
-			(uuid "a2df957a-c2c3-4d08-bf56-322ae5f544ff")
+			(uuid "bf0a6896-c9aa-44cf-9e90-7a052f183a70")
 		)
 		(instances
 			(project "addon-keys"
@@ -8311,7 +8322,18 @@
 				)
 			)
 		)
-		(property "Note" "2700-3000 K 1206 white LED (not stocked by LCSC; e.g. Electrokit 40307556)"
+		(property "LCSC" "C965830"
+			(at 389.89 85.09 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Note" "XINGLIGHT XL-3216WWC, 2800-3400 K; any warm-white 1206 fits"
 			(at 389.89 85.09 0)
 			(hide yes)
 			(show_name no)
@@ -8323,10 +8345,10 @@
 			)
 		)
 		(pin "1"
-			(uuid "b7fd3888-fa02-4c52-8854-948c0bd58d22")
+			(uuid "0f1b4eeb-b164-40f0-960b-974cf0918ca7")
 		)
 		(pin "2"
-			(uuid "e3cad025-6210-4e90-9905-59cbd64d2f7f")
+			(uuid "2d80b122-fd36-4d7b-b72e-4611164f9508")
 		)
 		(instances
 			(project "addon-keys"
@@ -8918,7 +8940,18 @@
 				)
 			)
 		)
-		(property "Note" "2700-3000 K 1206 white LED (not stocked by LCSC; e.g. Electrokit 40307556)"
+		(property "LCSC" "C965830"
+			(at 389.89 115.57 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Note" "XINGLIGHT XL-3216WWC, 2800-3400 K; any warm-white 1206 fits"
 			(at 389.89 115.57 0)
 			(hide yes)
 			(show_name no)
@@ -8930,10 +8963,10 @@
 			)
 		)
 		(pin "1"
-			(uuid "eaa1dc77-5c15-4e86-85ee-6354521af55e")
+			(uuid "3d3fbc71-762e-49f1-99ca-560a433d61c0")
 		)
 		(pin "2"
-			(uuid "fb7114a0-74bb-4434-8448-a71857f6aaa1")
+			(uuid "d9249749-4fff-490a-a416-e1bcb084aa97")
 		)
 		(instances
 			(project "addon-keys"

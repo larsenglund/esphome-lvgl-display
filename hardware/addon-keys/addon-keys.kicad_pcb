@@ -154,7 +154,7 @@
 				)
 			)
 		)
-		(property "Note" "2700-3000 K 1206 white LED (not stocked by LCSC; e.g. Electrokit 40307556)"
+		(property "Note" "XINGLIGHT XL-3216WWC, 2800-3400 K; any warm-white 1206 fits"
 			(at 0 0 90)
 			(layer "F.SilkS")
 			(hide yes)
@@ -163,6 +163,17 @@
 				(font
 					(size 1.27 1.27)
 					(thickness 0.15)
+				)
+			)
+		)
+		(property "LCSC" "C965830"
+			(at 0 0 0)
+			(layer "F.SilkS")
+			(hide yes)
+			(uuid "54d6a019-2942-413d-8a70-9a266d7daec4")
+			(effects
+				(font
+					(size 1.27 1.27)
 				)
 			)
 		)
@@ -954,7 +965,7 @@
 				)
 			)
 		)
-		(property "Note" "2700-3000 K 1206 white LED (not stocked by LCSC; e.g. Electrokit 40307556)"
+		(property "Note" "XINGLIGHT XL-3216WWC, 2800-3400 K; any warm-white 1206 fits"
 			(at 0 0 90)
 			(layer "F.SilkS")
 			(hide yes)
@@ -963,6 +974,17 @@
 				(font
 					(size 1.27 1.27)
 					(thickness 0.15)
+				)
+			)
+		)
+		(property "LCSC" "C965830"
+			(at 0 0 0)
+			(layer "F.SilkS")
+			(hide yes)
+			(uuid "fd2f20a9-5b90-42aa-81cc-216d82b3a9d9")
+			(effects
+				(font
+					(size 1.27 1.27)
 				)
 			)
 		)
@@ -2297,7 +2319,7 @@
 				)
 			)
 		)
-		(property "Note" "2700-3000 K 1206 white LED (not stocked by LCSC; e.g. Electrokit 40307556)"
+		(property "Note" "XINGLIGHT XL-3216WWC, 2800-3400 K; any warm-white 1206 fits"
 			(at 0 0 90)
 			(layer "F.SilkS")
 			(hide yes)
@@ -2306,6 +2328,17 @@
 				(font
 					(size 1.27 1.27)
 					(thickness 0.15)
+				)
+			)
+		)
+		(property "LCSC" "C965830"
+			(at 0 0 0)
+			(layer "F.SilkS")
+			(hide yes)
+			(uuid "e68d1dc4-3f00-4d5f-a1a8-25058dbd5634")
+			(effects
+				(font
+					(size 1.27 1.27)
 				)
 			)
 		)
