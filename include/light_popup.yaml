@@ -1,7 +1,8 @@
 ---
 # Popup with colour and effect controls for an RGB(W) light, shown on the top layer.
 # Open it with `script.execute: popup_${uid}_open`, e.g. from a long press on the light's slider.
-# The effect list is read from the light's effect_list attribute in Home Assistant.
+# The effect list is read from the light's effect_list attribute in Home Assistant;
+# the effect picker stays hidden for lights without effects.
 # Needs include/fonts_large.yaml
 # vars:
 #   uid: <unique identifier for the popup>
@@ -104,6 +105,14 @@ text_sensor:
             i = end + 1;
           }
           id(popup_${uid}_effects)->set_options(options);
+          // Only show the effect picker when the light has effects to pick from
+          const bool has_effects = options.size() > 1;
+          for (auto *obj : {id(popup_${uid}_effects_label), id(popup_${uid}_effects)->obj}) {
+            if (has_effects)
+              lv_obj_clear_flag(obj, LV_OBJ_FLAG_HIDDEN);
+            else
+              lv_obj_add_flag(obj, LV_OBJ_FLAG_HIDDEN);
+          }
       - script.execute: popup_${uid}_sync_effect
 
   - platform: homeassistant
@@ -461,7 +470,10 @@ lvgl:
                               brightness_pct: !lambda 'return to_string((int) x);'
                         - script.execute: popup_${uid}_autoclose
 
+                  # Hidden until Home Assistant reports effects for the light (some have none)
                   - label:
+                      id: popup_${uid}_effects_label
+                      hidden: true
                       text: "EFFEKT"
                       text_color: 0xFFFFFF
                       text_font: kdam_16
@@ -470,6 +482,7 @@ lvgl:
 
                   - dropdown:
                       id: popup_${uid}_effects
+                      hidden: true
                       align: TOP_MID
                       y: 302
                       width: 100%

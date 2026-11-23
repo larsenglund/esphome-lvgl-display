@@ -33,6 +33,8 @@ font:
       - $mdi_garage_open
       - $mdi_garage_alert
       - $mdi_thermometer
+      - $mdi_led_strip_variant
+      - $mdi_palette
     bpp: 8
   
   - file: "https://github.com/Templarian/MaterialDesign-Webfont/raw/master/fonts/materialdesignicons-webfont.ttf"
