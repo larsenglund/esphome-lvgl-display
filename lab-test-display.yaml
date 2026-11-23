@@ -1,0 +1,9 @@
+# Test bench for Vide's display: the same firmware on the workshop Guition, under the
+# workshop display's name so its existing Home Assistant entry (with actions allowed) is used.
+# Flash workshop-display.yaml again to give the workshop its own screen back.
+substitutions:
+  device_name: workshop-display
+  friendly_name: "Workshop display"
+
+packages:
+  vide: !include vides-room-display.yaml

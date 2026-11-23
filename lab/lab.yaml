@@ -1,0 +1,268 @@
+# Christmas lab page: four glass tubes of bubbling liquid (R, G, B, W) that set an RGBW light,
+# dragged up and down like sliders, with the clock and outdoor temperature at the top.
+# Needs include/fonts.yaml, include/mdi_glyph_substitutions.yaml, include/time_and_backlight.yaml
+# and include/temperature_state.yaml (uid temp_outdoor).
+# vars:
+#   lab_light: <Home Assistant light entity_id with colour and white modes>
+
+esphome:
+  includes:
+    - lab/lab_tubes.h
+
+image:
+  - file: lab/lab_background.png
+    id: lab_background
+    resize: 480x480
+    type: RGB565
+
+font:
+  - file: "gfonts://Mountains of Christmas@700"
+    id: lab_title
+    size: 44
+    glyphs: " Videslab"
+    bpp: 8
+
+  - file: "gfonts://Mountains of Christmas@700"
+    id: lab_tag
+    size: 20
+    glyphs: "RÖDGNBLÅVIT"
+    bpp: 8
+
+  - file: "https://github.com/Templarian/MaterialDesign-Webfont/raw/master/fonts/materialdesignicons-webfont.ttf"
+    id: lab_icons
+    size: 30
+    glyphs:
+      - $mdi_power
+    bpp: 8
+
+api:
+  actions:
+    # Set the tubes from Home Assistant as if dragged (0-100 each), e.g.
+    # esphome.vides_room_display_set_tubes. Handy for testing without touching the screen.
+    - action: set_tubes
+      # float, since int arguments don't link on ESPHome 2025.11 (no int32_t/long specialisation)
+      variables:
+        red: float
+        green: float
+        blue: float
+        white: float
+      then:
+        - lambda: 'lab::set_levels(red, green, blue, white);'
+
+script:
+  # Run once per minute by include/time_and_backlight.yaml
+  - id: time_update
+    then:
+      - lambda: |-
+          auto time = id(system_time).now();
+          if (time.is_valid()) {
+            lv_label_set_text_fmt(id(lbl_time), "%02d:%02d", time.hour, time.minute);
+            const char* days[] = {"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};
+            lv_label_set_text_fmt(id(lbl_date), "%s %02d/%02d",
+                                  days[time.day_of_week - 1],
+                                  time.day_of_month,
+                                  time.month);
+          }
+
+  # Send the tube levels to the light (run when a tube is let go)
+  - id: lab_send
+    then:
+      - if:
+          condition:
+            lambda: 'return lab::send_mode() == 0;'
+          then:
+            - homeassistant.action:
+                action: light.turn_off
+                data:
+                  entity_id: ${lab_light}
+          else:
+            - if:
+                condition:
+                  lambda: 'return lab::send_mode() == 1;'
+                then:
+                  - homeassistant.action:
+                      action: light.turn_on
+                      data:
+                        entity_id: ${lab_light}
+                      data_template:
+                        white: !lambda 'return str_sprintf("{{ %d }}", lab::level255(lab::WHITE));'
+                else:
+                  - homeassistant.action:
+                      action: light.turn_on
+                      data:
+                        entity_id: ${lab_light}
+                      data_template:
+                        rgb_color: !lambda 'return str_sprintf("{{ [%d, %d, %d] }}", lab::send_rgb(0), lab::send_rgb(1), lab::send_rgb(2));'
+                        brightness: !lambda 'return str_sprintf("{{ %d }}", lab::send_brightness());'
+
+  - id: lab_state_changed
+    then:
+      - lambda: |-
+          const bool on = id(lab_light_on).state;
+          lab::ha_update(on, id(lab_light_mode).state, id(lab_light_rgb).state, id(lab_light_brightness).state);
+          lv_obj_set_style_bg_color(id(lab_power), lv_color_hex(on ? 0xE8322C : 0x5A1212), LV_PART_MAIN);
+          lv_obj_set_style_shadow_opa(id(lab_power), on ? LV_OPA_80 : LV_OPA_TRANSP, LV_PART_MAIN);
+          lv_obj_set_style_text_color(id(lab_power_icon), lv_color_hex(on ? 0xFFFFFF : 0xC98A8A), LV_PART_MAIN);
+
+binary_sensor:
+  - platform: homeassistant
+    id: lab_light_on
+    entity_id: ${lab_light}
+    internal: true
+    on_state:
+      - script.execute: lab_state_changed
+
+text_sensor:
+  - platform: homeassistant
+    id: lab_light_mode
+    entity_id: ${lab_light}
+    attribute: color_mode
+    internal: true
+    on_value:
+      - script.execute: lab_state_changed
+
+  # e.g. "(255, 90, 0)", the colour at full brightness
+  - platform: homeassistant
+    id: lab_light_rgb
+    entity_id: ${lab_light}
+    attribute: rgb_color
+    internal: true
+    on_value:
+      - script.execute: lab_state_changed
+
+sensor:
+  - platform: homeassistant
+    id: lab_light_brightness
+    entity_id: ${lab_light}
+    attribute: brightness
+    internal: true
+    on_value:
+      - script.execute: lab_state_changed
+
+interval:
+  # Bubbles, liquid levels and bulbs, only while the screen is lit
+  - interval: 40ms
+    then:
+      - lambda: |-
+          if (id(display_backlight).current_values.is_on())
+            lab::tick();
+
+lvgl:
+  displays:
+    - tft_display
+  touchscreens:
+    - tft_touch
+  color_depth: 16
+
+  on_boot:
+    - lambda: |-
+        lv_obj_t *const glass[] = {id(tube_0_glass), id(tube_1_glass), id(tube_2_glass), id(tube_3_glass)};
+        lv_obj_t *const liquid[] = {id(tube_0_liquid), id(tube_1_liquid), id(tube_2_liquid), id(tube_3_liquid)};
+        lab::setup(id(main_page)->obj, glass, liquid, []() { id(lab_send).execute(); });
+
+  top_layer:
+    widgets:
+      - label:
+          text: $mdi_wifi
+          text_font: material_icons_small
+          id: lbl_hastatus
+          hidden: true
+          align: top_right
+          text_align: right
+          text_color: 0xff4800
+
+  pages:
+    - id: main_page
+      bg_image_src: lab_background
+      pad_all: 0
+      scrollable: false
+      widgets:
+        - obj:
+            <<: !include
+              file: ../include/time_button.yaml
+              vars:
+                uid: button_time_1
+            x: 6
+            y: 16
+
+        - obj:
+            <<: !include
+              file: ../include/temperature_button.yaml
+              vars:
+                uid: temp_outdoor
+                text: "UTE"
+            x: 374
+            y: 16
+
+        - label:
+            align: TOP_MID
+            y: 48
+            recolor: true
+            text: "#8BE02E Vides# #FF3B30 labb#"
+            text_font: lab_title
+
+        - obj: !include
+            file: tube.yaml
+            vars:
+              idx: 0
+              x: 34
+              name: "RÖD"
+              liquid_top: 0xFF6B5E
+              liquid_bottom: 0x8E0B0B
+
+        - obj: !include
+            file: tube.yaml
+            vars:
+              idx: 1
+              x: 150
+              name: "GRÖN"
+              liquid_top: 0xB6FF4A
+              liquid_bottom: 0x2F7D05
+
+        - obj: !include
+            file: tube.yaml
+            vars:
+              idx: 2
+              x: 266
+              name: "BLÅ"
+              liquid_top: 0x6EC6FF
+              liquid_bottom: 0x0B2E8F
+
+        - obj: !include
+            file: tube.yaml
+            vars:
+              idx: 3
+              x: 382
+              name: "VIT"
+              liquid_top: 0xFFFFFF
+              liquid_bottom: 0xB8C7D3
+
+        # Big red button in the snow: light on/off
+        - button:
+            id: lab_power
+            align: BOTTOM_MID
+            y: -8
+            width: 56
+            height: 40
+            radius: 20
+            bg_color: 0x5A1212
+            bg_grad_color: 0x7A0A0A
+            bg_grad_dir: VER
+            bg_opa: 100%
+            border_width: 2
+            border_color: 0xE8C050
+            shadow_color: 0xFF3B30
+            shadow_width: 16
+            shadow_opa: 0%
+            on_click:
+              - homeassistant.action:
+                  action: light.toggle
+                  data:
+                    entity_id: ${lab_light}
+            widgets:
+              - label:
+                  id: lab_power_icon
+                  align: CENTER
+                  text: $mdi_power
+                  text_font: lab_icons
+                  text_color: 0xC98A8A

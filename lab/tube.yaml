@@ -1,0 +1,77 @@
+# One glass tube of the Christmas lab, placed on a page without layout.
+# Bubbles, graduation marks, dragging and the level come from lab_tubes.h.
+# vars:
+#   idx: <0-3, R G B W>
+#   x: <left edge in px>
+#   name: <label on the tube>
+#   liquid_top: <colour at the surface>
+#   liquid_bottom: <colour at the bottom>
+id: tube_${idx}_glass
+x: ${x}
+y: 118
+width: 64
+height: 292
+pad_all: 0
+radius: 32
+bg_color: 0xDDEEFF
+bg_opa: 14%
+border_width: 3
+border_color: 0xBFD8E8
+border_opa: 80%
+shadow_width: 0
+clip_corner: true
+scrollable: false
+widgets:
+  - obj:
+      id: tube_${idx}_liquid
+      x: 0
+      y: 285
+      width: 58
+      height: 1
+      pad_all: 0
+      radius: 0
+      border_width: 0
+      shadow_width: 0
+      bg_color: ${liquid_top}
+      bg_grad_color: ${liquid_bottom}
+      bg_grad_dir: VER
+      bg_opa: 92%
+      clickable: false
+      scrollable: false
+
+  # Shine on the glass
+  - obj:
+      x: 8
+      y: 46
+      width: 7
+      height: 200
+      pad_all: 0
+      radius: 4
+      border_width: 0
+      shadow_width: 0
+      bg_color: 0xFFFFFF
+      bg_opa: 35%
+      clickable: false
+      scrollable: false
+
+  # Paper label
+  - obj:
+      align: TOP_MID
+      y: 16
+      width: 52
+      height: 26
+      pad_all: 0
+      radius: 3
+      border_width: 1
+      border_color: 0xA88B5A
+      shadow_width: 0
+      bg_color: 0xF4EBD0
+      bg_opa: 100%
+      clickable: false
+      scrollable: false
+      widgets:
+        - label:
+            align: CENTER
+            text: ${name}
+            text_font: lab_tag
+            text_color: 0x6A1A0E
