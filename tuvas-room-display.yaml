@@ -1,0 +1,49 @@
+# Tuva's room: a Christmas tree whose star turns on the ceiling light and whose big ornaments
+# toggle the same three lights as her STYRBAR remote
+substitutions:
+  device_name: tuvas-room-display
+  friendly_name: "Tuvas room display"
+  touchscreen_idle_timeout: "60s"
+  touchscreen_daytime_brightness: "80%"
+  touchscreen_nighttime_brightness: "50%"
+
+esphome:
+  name: ${device_name}
+  friendly_name: ${friendly_name}
+
+packages:
+  network: !include include/network.yaml # WiFi, API and OTA configuration
+  hardware: !include include/guition-esp32-s3-4848s040.yaml # Harware description file
+  fonts: !include include/fonts.yaml # Some nice basic fonts
+  glyphs: !include include/mdi_glyph_substitutions.yaml # 1000s of glyphs
+  sensors: !include include/sensors_base.yaml # Some basic sensors
+  backlight: !include include/time_and_backlight.yaml # Time and backlight management
+  screenshot: !include include/screenshot.yaml # http://tuvas-room-display.local/screenshot
+
+  temp_outdoor_state: !include
+    file: include/temperature_state.yaml
+    vars:
+      uid: temp_outdoor
+      entity_id: "sensor.esphome_outdoor_humiture_bme280_temperature"
+      entity_id_min: "sensor.esphome_outdoor_humiture_bme280_temperature_min"
+      entity_id_max: "sensor.esphome_outdoor_humiture_bme280_temperature_max"
+
+  tree: !include
+    file: tree/tree.yaml
+    vars:
+      star_light: "light.tuvas_taklampa" # not in Home Assistant yet: the star stays dull until it is
+      ornament_1: "switch.lavalampa_socket_1" # Sängslingor (top, bed icon)
+      ornament_2: "switch.hornslingor" # Hörnslingor (lower left, string lights icon)
+      ornament_3: "switch.mossvagg_socket_1" # Skrivbord (lower right, desk lamp icon)
+
+logger:
+  level: DEBUG
+
+# Why it last restarted, in Home Assistant (crash, watchdog, OTA, power)
+debug:
+  update_interval: 60s
+
+text_sensor:
+  - platform: debug
+    reset_reason:
+      name: "Reset reason"

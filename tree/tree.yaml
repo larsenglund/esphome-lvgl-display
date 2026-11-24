@@ -1,0 +1,177 @@
+# Christmas tree page: the star on top and three big ornaments each toggle a light. They are dull
+# when the light is off and shine when it is on. Clock and outdoor temperature at the top.
+# Images are drawn by tree/make_images.py, animation and taps are in tree/tree_fx.h.
+# Needs include/fonts.yaml, include/mdi_glyph_substitutions.yaml, include/time_and_backlight.yaml
+# and include/temperature_state.yaml (uid temp_outdoor).
+# vars (any entity with on/off: light, switch, ...):
+#   star_light: <the star>
+#   ornament_1: <top ornament, bed icon>
+#   ornament_2: <lower left ornament, string lights icon>
+#   ornament_3: <lower right ornament, desk lamp icon>
+
+esphome:
+  includes:
+    - tree/tree_layout.h
+    - tree/tree_fx.h
+
+image:
+  - file: tree/background.png
+    id: tree_background
+    resize: 480x480
+    type: RGB565
+  - {file: tree/star_on.png, id: tree_star_on, type: RGB565, transparency: alpha_channel}
+  - {file: tree/star_off.png, id: tree_star_off, type: RGB565, transparency: alpha_channel}
+  - {file: tree/ornament_1_on.png, id: tree_ornament_1_on, type: RGB565, transparency: alpha_channel}
+  - {file: tree/ornament_1_off.png, id: tree_ornament_1_off, type: RGB565, transparency: alpha_channel}
+  - {file: tree/ornament_2_on.png, id: tree_ornament_2_on, type: RGB565, transparency: alpha_channel}
+  - {file: tree/ornament_2_off.png, id: tree_ornament_2_off, type: RGB565, transparency: alpha_channel}
+  - {file: tree/ornament_3_on.png, id: tree_ornament_3_on, type: RGB565, transparency: alpha_channel}
+  - {file: tree/ornament_3_off.png, id: tree_ornament_3_off, type: RGB565, transparency: alpha_channel}
+  - {file: tree/sparkle.png, id: tree_sparkle, type: RGB565, transparency: alpha_channel}
+
+api:
+  actions:
+    # Tap the star (0) or an ornament (1-3) from Home Assistant, e.g. esphome.tuvas_room_display_tree_tap.
+    # Handy for testing without touching the screen.
+    - action: tree_tap
+      # float, since int arguments don't link on ESPHome 2025.11
+      variables:
+        which: float
+      then:
+        - lambda: 'tree::tap((int) lroundf(which));'
+
+script:
+  # Run once per minute by include/time_and_backlight.yaml
+  - id: time_update
+    then:
+      - lambda: |-
+          auto time = id(system_time).now();
+          if (time.is_valid()) {
+            lv_label_set_text_fmt(id(lbl_time), "%02d:%02d", time.hour, time.minute);
+            const char* days[] = {"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};
+            lv_label_set_text_fmt(id(lbl_date), "%s %02d/%02d",
+                                  days[time.day_of_week - 1],
+                                  time.day_of_month,
+                                  time.month);
+          }
+
+  # Switch the light behind the star (0) or an ornament (1-3) on or off
+  - id: tree_send
+    mode: queued
+    parameters:
+      idx: int
+      turn_on: bool
+    then:
+      - if:
+          condition:
+            lambda: 'return turn_on;'
+          then:
+            - homeassistant.action:
+                action: homeassistant.turn_on
+                data:
+                  entity_id: !lambda |-
+                    static const char *const ids[] = {"${star_light}", "${ornament_1}", "${ornament_2}", "${ornament_3}"};
+                    return std::string(ids[idx]);
+          else:
+            - homeassistant.action:
+                action: homeassistant.turn_off
+                data:
+                  entity_id: !lambda |-
+                    static const char *const ids[] = {"${star_light}", "${ornament_1}", "${ornament_2}", "${ornament_3}"};
+                    return std::string(ids[idx]);
+
+binary_sensor:
+  - platform: homeassistant
+    id: tree_star_state
+    entity_id: ${star_light}
+    internal: true
+    trigger_on_initial_state: true # else the state at boot never reaches the tree
+    on_state:
+      - lambda: 'tree::set_state(0, x);'
+  - platform: homeassistant
+    id: tree_ornament_1_state
+    entity_id: ${ornament_1}
+    internal: true
+    trigger_on_initial_state: true # else the state at boot never reaches the tree
+    on_state:
+      - lambda: 'tree::set_state(1, x);'
+  - platform: homeassistant
+    id: tree_ornament_2_state
+    entity_id: ${ornament_2}
+    internal: true
+    trigger_on_initial_state: true # else the state at boot never reaches the tree
+    on_state:
+      - lambda: 'tree::set_state(2, x);'
+  - platform: homeassistant
+    id: tree_ornament_3_state
+    entity_id: ${ornament_3}
+    internal: true
+    trigger_on_initial_state: true # else the state at boot never reaches the tree
+    on_state:
+      - lambda: 'tree::set_state(3, x);'
+
+interval:
+  # Snow, sparkles, swaying and twinkling, only while the screen is lit
+  - interval: 40ms
+    then:
+      - lambda: |-
+          if (id(display_backlight).current_values.is_on())
+            tree::tick();
+
+lvgl:
+  displays:
+    - tft_display
+  touchscreens:
+    - tft_touch
+  color_depth: 16
+
+  on_boot:
+    - lambda: |-
+        const lv_img_dsc_t *const on[] = {id(tree_star_on)->get_lv_img_dsc(), id(tree_ornament_1_on)->get_lv_img_dsc(),
+                                          id(tree_ornament_2_on)->get_lv_img_dsc(), id(tree_ornament_3_on)->get_lv_img_dsc()};
+        const lv_img_dsc_t *const off[] = {id(tree_star_off)->get_lv_img_dsc(), id(tree_ornament_1_off)->get_lv_img_dsc(),
+                                           id(tree_ornament_2_off)->get_lv_img_dsc(), id(tree_ornament_3_off)->get_lv_img_dsc()};
+        tree::setup(id(main_page)->obj, on, off, id(tree_sparkle)->get_lv_img_dsc(),
+                    [](int i, bool turn_on) { id(tree_send)->execute(i, turn_on); });
+        // States that arrived before the page was built
+        const bool known[] = {id(tree_star_state).has_state(), id(tree_ornament_1_state).has_state(),
+                              id(tree_ornament_2_state).has_state(), id(tree_ornament_3_state).has_state()};
+        const bool state[] = {id(tree_star_state).state, id(tree_ornament_1_state).state,
+                              id(tree_ornament_2_state).state, id(tree_ornament_3_state).state};
+        for (int i = 0; i < tree::ITEMS; i++)
+          if (known[i])
+            tree::set_state(i, state[i]);
+
+  top_layer:
+    widgets:
+      - label:
+          text: $mdi_wifi
+          text_font: material_icons_small
+          id: lbl_hastatus
+          hidden: true
+          align: top_right
+          text_align: right
+          text_color: 0xff4800
+
+  pages:
+    - id: main_page
+      bg_image_src: tree_background
+      pad_all: 0
+      scrollable: false
+      widgets:
+        - obj:
+            <<: !include
+              file: ../include/time_button.yaml
+              vars:
+                uid: button_time_1
+            x: 6
+            y: 16
+
+        - obj:
+            <<: !include
+              file: ../include/temperature_button.yaml
+              vars:
+                uid: temp_outdoor
+                text: "UTE"
+            x: 374
+            y: 16

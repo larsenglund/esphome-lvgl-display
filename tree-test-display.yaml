@@ -1,0 +1,9 @@
+# Test bench for Tuva's display: the same firmware on the workshop Guition, under the
+# workshop display's name so its existing Home Assistant entry (with actions allowed) is used.
+# Flash lab-test-display.yaml or workshop-display.yaml to put something else back on it.
+substitutions:
+  device_name: workshop-display
+  friendly_name: "Workshop display"
+
+packages:
+  tuva: !include tuvas-room-display.yaml
