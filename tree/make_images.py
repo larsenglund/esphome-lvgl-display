@@ -2,7 +2,7 @@
 
 - background.png: night sky with northern lights, snowy hills, the tree with its light strings,
   presents and snow. 480x480, no transparency.
-- star_on.png / star_off.png: the star on top (the ceiling light), shining or dull.
+- star_on.png / star_off.png: the star on top (its own light), shining or dull.
 - ornament_N_on.png / ornament_N_off.png: the big baubles (one light each), with a glow when on.
   They hang from the top of the loop and sway sideways when tapped.
 - sparkle.png: a little four-pointed glint that flashes around whatever is lit.

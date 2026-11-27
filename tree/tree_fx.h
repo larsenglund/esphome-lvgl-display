@@ -1,4 +1,4 @@
-// Christmas tree display: a star (the ceiling light) and big ornaments (one light each) that are
+// Christmas tree display: a star (one light) and big ornaments (one light each) that are
 // dull when their light is off and shine when it is on. Tapping one toggles its light; ornaments
 // sway on their branch and the star bobs, with a burst of sparkles. Lit things sparkle, the bulbs on the light strings
 // twinkle and snow falls in front of it all.

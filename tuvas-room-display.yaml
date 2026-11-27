@@ -1,4 +1,4 @@
-# Tuva's room: a Christmas tree whose star turns on the ceiling light and whose big ornaments
+# Tuva's room: a Christmas tree whose star turns on the advent lights and whose big ornaments
 # toggle the same three lights as her STYRBAR remote
 substitutions:
   device_name: tuvas-room-display
@@ -31,7 +31,7 @@ packages:
   tree: !include
     file: tree/tree.yaml
     vars:
-      star_light: "light.tuvas_taklampa" # not in Home Assistant yet: the star stays dull until it is
+      star_light: "switch.adventslampor" # AdventsLampor
       ornament_1: "switch.lavalampa_socket_1" # Sängslingor (top, bed icon)
       ornament_2: "switch.hornslingor" # Hörnslingor (lower left, string lights icon)
       ornament_3: "switch.mossvagg_socket_1" # Skrivbord (lower right, desk lamp icon)
